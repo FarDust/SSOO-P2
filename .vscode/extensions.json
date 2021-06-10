@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "ms-vscode.cpptools",
+    "hars.cppsnippets",
+    "ms-vscode.cpptools-themes",
+    "ms-vscode.cpptools-extension-pack",
+    "ms-vscode.cmake-tools"
+  ]
+}
