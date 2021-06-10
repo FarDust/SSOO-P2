@@ -14,4 +14,7 @@ typedef enum
 typedef enum
 {
   Sangrado,
+  Taunted,
+  AttackBuff,
+  BruteForceCharge,
 } Buff;
