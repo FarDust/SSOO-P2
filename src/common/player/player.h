@@ -11,8 +11,7 @@ typedef enum
 
 typedef struct player
 {
-  size_t uuid;
-  size_t health;
+  Entity *properties;
   PlayerClass spec;
   Spell current_spell;
 } Player;
