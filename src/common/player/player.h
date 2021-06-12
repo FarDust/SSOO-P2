@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <bool.h>
 #include "../spells/spell.h"
 #include "../entity/entity.h"
 
@@ -12,8 +11,7 @@ typedef enum
 
 typedef struct player
 {
-  size_t uuid;
-  size_t health;
+  Entity *properties;
   PlayerClass spec;
   Spell current_spell;
 } Player;
