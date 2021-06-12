@@ -1,3 +1,5 @@
+#pragma once
+#include <stdlib.h>
 typedef enum
 {
   Estocada,
@@ -18,3 +20,5 @@ typedef enum
   AttackBuff,
   BruteForceCharge,
 } Buff;
+
+char *get_spell_name(Spell spell);

@@ -48,7 +48,7 @@ LIB=$(GTK) $(MTH)
 COMMON= common
 
 # Directorios que serán compilados a un programa
-PROGRAMS= server client
+PROGRAMS= server client test
 
 # Todos los directorios que contienen archivos de código
 SRCDIR=$(COMMON) $(PROGRAMS)
