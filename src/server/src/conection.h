@@ -1,3 +1,4 @@
+#include <pthread.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,19 +19,25 @@
 //https://pubs.opengroup.org/onlinepubs/7908799/xns/netdb.h.html
 
 typedef struct players_info{
-  int socket_c1;
-  int socket_c2;
-  int socket_c3;
-  int socket_c4;
-  int socket_c5;
-  int libres[5];
+  int sockets[5];
 } PlayersInfo;
 
-PlayersInfo * prepare_sockets_and_get_clients(char * IP, int port);
+
 
 typedef struct thread_conectar{
   PlayersInfo* sockets_clients;
   int server_socket;
-
+  pthread_t escuchadores[5];
 
 } Thread_conectar;
+
+typedef struct thread_escuchar{
+  PlayersInfo* sockets_clients;
+  int attention;
+
+} Thread_escuchar;
+
+Thread_conectar * prepare_sockets_and_get_clients(char * IP, int port);
+void *Th_conectador(Thread_conectar * info_conectar);
+void *Conexion(Thread_escuchar * informacion_thread);
+char * revert(char * message);

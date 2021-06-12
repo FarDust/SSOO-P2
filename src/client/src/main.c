@@ -28,29 +28,13 @@ int main (int argc, char *argv[]){
   // Se inicializa un loop para recibir todo tipo de paquetes y tomar una acción al respecto
   while (1){
     int msg_code = client_receive_id(server_socket);
-    if (msg_code == 1) { //Recibimos un mensaje del servidor
+    if (msg_code == 2) { //Recibimos un mensaje del servidor para un jugador cualquiera
       char * message = client_receive_payload(server_socket);
       printf("El servidor dice: %s\n", message);
       free(message);
 
-      printf("¿A cuántos jugadores espera?\n");
-      int option = getchar() - '0';
-      getchar(); //Para capturar el "enter" que queda en el buffer de entrada stdin
-
-      printf("Ingrese su mensaje: ");
-      char * response = get_input();
-
-      client_send_message(server_socket, option, response);
-    }
-
-    if (msg_code == 2) { //Recibimos un mensaje del servidor para preguntar cuantos jugadores
-      char * message = client_receive_payload(server_socket);
-      printf("El servidor dice: %s\n", message);
-      free(message);
-
-      printf("¿A cuántos jugadores espera?\n");
-      int option = 3;
-      //Para capturar el "enter" que queda en el buffer de entrada stdin
+      printf("Elija nombre\n");
+      int option = 2;
 
       printf("Ingrese su mensaje: ");
       char * response = get_input();
@@ -62,15 +46,24 @@ int main (int argc, char *argv[]){
       printf("El servidor dice: %s\n", message);
       free(message);
 
-      printf("¿A cuántos jugadores espera?\n");
-      int option = 3;
-      //Para capturar el "enter" que queda en el buffer de entrada stdin
+      printf("Ha sido asignado como lider de la sesión\n");
+      printf("Ponga su nombre \n");
+      int option = 2;
 
       printf("Ingrese su mensaje: ");
       char * response = get_input();
 
       client_send_message(server_socket, option, response);
     }
+    if (msg_code == 1) { // Acá se setea el jugador lider
+      char * message = client_receive_payload(server_socket);
+      free(message);
+      int option = 0;
+      char * response = "nada";
+
+      client_send_message(server_socket, option, response);
+    }
+
 
     printf("------------------\n");
   }

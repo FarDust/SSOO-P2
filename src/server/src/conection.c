@@ -1,5 +1,3 @@
-
-#include <pthread.h>
 #include "conection.h"
 
 //LINKS REFERENCIAS:
@@ -13,9 +11,23 @@
 //https://www.man7.org/linux/man-pages/man2/bind.2.html
 //https://www.man7.org/linux/man-pages/man2/accept.2.html
 
-void *myThreadFun(Thread_conectar * info_conectar)
+char * revert(char * message){
+  //Se invierte el mensaje
+
+  int len = strlen(message) + 1;
+  char * response = malloc(len);
+
+  for (int i = 0; i < len-1; i++)
+  {
+    response[i] = message[len-2-i];
+  }
+  response[len-1] = '\0';
+  return message;
+}
+
+
+void *Th_conectador(Thread_conectar * info_conectar)
 {
-  printf("Printing GeeksQuiz from Thread \n");
   struct sockaddr_in client1_addr;
   struct sockaddr_in client2_addr;
   struct sockaddr_in client3_addr;
@@ -27,26 +39,28 @@ void *myThreadFun(Thread_conectar * info_conectar)
   
 
   printf("esperando clientes\n");
-  info_conectar ->sockets_clients->socket_c1 = accept(info_conectar ->server_socket, (struct sockaddr *)&client1_addr, &addr_size);
-  server_send_message(info_conectar ->sockets_clients->socket_c1, 3, welcome);
+  
+  info_conectar->sockets_clients->sockets[0] = accept(info_conectar->server_socket, (struct sockaddr *)&client1_addr, &addr_size);
+  server_send_message(info_conectar ->sockets_clients->sockets[0], 3, welcome);
   printf("se conectó 1 cliente\n");
-  info_conectar ->sockets_clients->socket_c2 = accept(info_conectar ->server_socket, (struct sockaddr *)&client2_addr, &addr_size);
-  server_send_message(info_conectar ->sockets_clients->socket_c2, 2, welcome);
+
+  info_conectar ->sockets_clients->sockets[1] = accept(info_conectar ->server_socket, (struct sockaddr *)&client2_addr, &addr_size);
+  server_send_message(info_conectar ->sockets_clients->sockets[1], 2, welcome);
   printf("se conectó 1 cliente\n");
-  info_conectar ->sockets_clients->socket_c3 = accept(info_conectar ->server_socket, (struct sockaddr *)&client3_addr, &addr_size);
-  server_send_message(info_conectar ->sockets_clients->socket_c3, 2, welcome);
+  info_conectar ->sockets_clients->sockets[2]= accept(info_conectar ->server_socket, (struct sockaddr *)&client3_addr, &addr_size);
+  server_send_message(info_conectar ->sockets_clients->sockets[2], 2, welcome);
   printf("se conectó 1 cliente\n");
-  info_conectar ->sockets_clients->socket_c4 = accept(info_conectar ->server_socket, (struct sockaddr *)&client4_addr, &addr_size);
-  server_send_message(info_conectar ->sockets_clients->socket_c4, 2, welcome);
+  info_conectar ->sockets_clients->sockets[3]= accept(info_conectar ->server_socket, (struct sockaddr *)&client4_addr, &addr_size);
+  server_send_message(info_conectar ->sockets_clients->sockets[3], 2, welcome);
   printf("se conectó 1 cliente\n");
-  info_conectar ->sockets_clients->socket_c5 = accept(info_conectar ->server_socket, (struct sockaddr *)&client5_addr, &addr_size);
-  server_send_message(info_conectar ->sockets_clients->socket_c5, 2, welcome);
+  info_conectar ->sockets_clients->sockets[4] = accept(info_conectar ->server_socket, (struct sockaddr *)&client5_addr, &addr_size);
+  server_send_message(info_conectar ->sockets_clients->sockets[4], 2, welcome);
   printf("se conectó 1 cliente\n");
   return NULL;
 }
 
 
-PlayersInfo * prepare_sockets_and_get_clients(char * IP, int port){
+Thread_conectar * prepare_sockets_and_get_clients(char * IP, int port){
   // Se define la estructura para almacenar info del socket del servidor al momento de su creación
   struct sockaddr_in server_addr;
 
@@ -63,11 +77,8 @@ PlayersInfo * prepare_sockets_and_get_clients(char * IP, int port){
   inet_aton(IP, &server_addr.sin_addr);
   server_addr.sin_port = htons(port);
 
-
-
-  PlayersInfo * sockets_clients = malloc(sizeof(PlayersInfo));
   Thread_conectar * info_conectar = malloc(sizeof(Thread_conectar));
-  info_conectar->sockets_clients = sockets_clients;
+  info_conectar->sockets_clients = malloc(sizeof(PlayersInfo));
   info_conectar->server_socket = server_socket;
 
   int ret2 = bind(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr));
@@ -76,10 +87,43 @@ PlayersInfo * prepare_sockets_and_get_clients(char * IP, int port){
   int ret3 = listen(server_socket, 1);
 
   pthread_t thread_id;
-  printf("Before Thread\n");
-  pthread_create(&thread_id, NULL, myThreadFun, info_conectar);
+  pthread_create(&thread_id, NULL, Th_conectador, info_conectar);
   //pthread_join(thread_id, NULL);
 
-  printf("se retornó");
-  return sockets_clients;
+  printf("se retornó\n");
+  return info_conectar;
+}
+
+void *Conexion(Thread_escuchar * informacion_thread)
+{
+  int my_attention = informacion_thread->attention;
+  while (1)
+  {
+    int msg_code = server_receive_id(informacion_thread->sockets_clients->sockets[my_attention]);
+    if (msg_code == 1) //El cliente me envió un mensaje a mi (servidor)
+    {
+      printf("Se recibió mensaje 1\n");
+      char * client_message = server_receive_payload(informacion_thread->sockets_clients->sockets[my_attention]);
+      printf("El cliente %d dice: %s\n", my_attention+1, client_message);
+
+      // Le enviaremos el mismo mensaje invertido jeje
+      char * response = revert(client_message);
+
+      // Le enviamos la respuesta
+      server_send_message(informacion_thread->sockets_clients->sockets[my_attention], 1, response);
+    }
+    else if (msg_code == 2) //Recepción del nombre, son todos validos
+    {
+      printf("Se recibió mensaje 2\n");
+      char * client_message = server_receive_payload(informacion_thread->sockets_clients->sockets[my_attention]);
+      printf("El cliente %d seteó su nombre como: %s\n", my_attention+1, client_message);
+
+      char * response = revert(client_message);
+
+      // Le enviamos la respuesta
+      server_send_message(informacion_thread->sockets_clients->sockets[my_attention], 2, response);
+    }
+  }
+  
+  return NULL;
 }
