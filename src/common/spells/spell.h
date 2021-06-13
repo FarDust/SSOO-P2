@@ -1,6 +1,9 @@
 #pragma once
 #include <stdlib.h>
+#include <stdbool.h>
 #include "../entity/entity.h"
+
+#define SPELL_COUNT 9
 typedef enum
 {
   Estocada,
@@ -32,6 +35,7 @@ typedef enum
 } Slot;
 
 char *get_spell_name(Spell spell);
+bool is_harm_spell(Spell spell);
 
 void estocada(Entity *caster, Entity *target);
 void corte_cruzado(Entity *caster, Entity *target);

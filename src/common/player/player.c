@@ -55,6 +55,7 @@ Spell get_spell_slot(PlayerClass spec, Slot slot){
   default:
     break;
   }
+  return 0;
 }
 
 void select_spell(Player *player, Slot spell){
@@ -71,6 +72,7 @@ void show_spells(Player *player){
 }
 
 void cast_spell(Entity *caster, Entity * target, Spell spell){
+  printf("Entity %ld cast %s in Entity %ld\n", caster->uuid, get_spell_name(spell), target->uuid);
   switch (spell)
   {
   case Estocada:
@@ -85,15 +87,15 @@ void cast_spell(Entity *caster, Entity * target, Spell spell){
   case Curar:
     curar(caster, target);
     break;
-  case DestelloRegenerador:
+  case DestelloRegenerador:;
     size_t damage_dealt = destello_regenerador(caster, target);
 
     time_t t;
     srand((unsigned) time(&t));
 
     size_t selected_player = rand() % PLAYER_NUMBER;
-
-    destello_regenerador_side_effect(caster, PLAYERS[selected_player], (size_t)round((double)damage_dealt / 2));
+    Player * new_target = PLAYERS[selected_player];
+    destello_regenerador_side_effect(caster, new_target->properties, (size_t)round((double)damage_dealt / 2));
     break;
   case DescargaVital:
     descarga_vital(caster, target);
