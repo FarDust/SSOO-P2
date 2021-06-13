@@ -15,16 +15,26 @@ typedef enum
   InyeccionSQL,
   AtaqueDDOS,
   FuerzaBruta,
+  Salto,
+  EspinaVenenosa,
+  CasoDeCopia,
+  Reprobatron,
+  SudoRmRf,
+  Ruzgar,
+  Coletazo
 } Spell;
 
 typedef enum
 {
-  CasoDeCopia,
+  CasoDeCopiaStatus,
   Sangrado,
   Taunted,
   TauntedBy,
   AttackBuff,
   BruteForceCharge,
+  Desmoralized,
+  Toxic,
+  JumpBlocked,
 } Buff;
 
 typedef enum
@@ -35,6 +45,7 @@ typedef enum
 } Slot;
 
 char *get_spell_name(Spell spell);
+int do_dmg(Entity* target, int dmg);
 bool is_harm_spell(Spell spell);
 
 void estocada(Entity *caster, Entity *target);
