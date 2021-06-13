@@ -1,5 +1,33 @@
 #include "./monster.h"
 
+Monster* MONSTER;
+
+Monster * spawn_monster(MonsterClass spec){
+  Monster *monster = malloc(sizeof(Monster));
+  monster->properties = spawn_entity();
+  monster->name = spec;
+  monster->current_spell = 0;
+  
+  switch (monster->name)
+  {
+  case GreatJagRuz:
+    monster->properties->health = 10000;
+    break;
+  case Ruzalos:
+    monster->properties->health = 20000;
+    break;
+  case Ruiz:
+    monster->properties->health = 25000;
+    break;
+
+  default:
+    break;
+  }
+  monster->properties->max_health = monster->properties->health;
+  MONSTER = monster;
+  return monster;
+}
+
 void select_monster_spell(Monster* monster)
 {
   srand(1);
@@ -44,6 +72,11 @@ void select_monster_spell(Monster* monster)
   default:
     break;
   }
+}
+
+void kill_monster(Monster* monster){
+  free(monster->properties);
+  free(monster);
 }
 
 void cast_monster_spell(Monster *monster, Player** players, int n_players, int rounds)

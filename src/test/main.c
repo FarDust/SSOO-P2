@@ -4,8 +4,9 @@
 void test_player_spells(){
 
   Player *player = spawn_player(Hunter);
-  Player *monster = spawn_player(Medic);
-
+  Monster *monster = spawn_monster(Ruzalos);
+  Player* players[1];
+  players[0] = player;
   show_spells(player);
   Spell spell = get_spell_slot(player->spec, first);
   select_spell(player, spell);
@@ -14,14 +15,10 @@ void test_player_spells(){
     cast_spell(player->properties, monster->properties, spell);
   }
   
-  show_spells(monster);
-  Spell sec_spell = get_spell_slot(monster->spec, second);
-  select_spell(monster, sec_spell);
-
-  cast_spell(player->properties, monster->properties, sec_spell);
-
+  select_monster_spell(monster);
+  cast_monster_spell(monster, players, 1, 4);
   kill_player(player);
-  kill_player(monster);
+  kill_monster(monster);
 }
 
 int main(int argc, char **argv)

@@ -19,5 +19,8 @@ typedef struct monster
   Spell current_spell;
 } Monster;
 
+
+Monster * spawn_monster(MonsterClass spec);
+void kill_monster(Monster* monster);
 void select_monster_spell(Monster* monster);
 void cast_monster_spell(Monster *monster, Player** players, int n_players, int rounds);
