@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stdlib.h>
 #include "../spells/spell.h"
 #include "../entity/entity.h"

@@ -24,4 +24,5 @@ typedef enum
   CanJump,
 } Buff;
 
+char *get_spell_name(Spell spell);
 int do_dmg(Entity* target, int dmg);

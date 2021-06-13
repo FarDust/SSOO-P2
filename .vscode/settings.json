@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "files.associations": {
     "*.html": "html",
@@ -29,4 +30,38 @@
     "DDOS",
     "Inyeccion"
   ]
+=======
+{
+  "files.associations": {
+    "*.html": "html",
+    "*.asm": "arm",
+    "*.s": "riscv",
+    "stdbool.h": "c",
+    "limits": "c",
+    "manager.h": "c",
+    "typeinfo": "c",
+    "output_manager.h": "c",
+    "stdio.h": "c",
+    "scheduler.h": "c",
+    "queue.h": "c",
+    "mbt.h": "c",
+    "optional": "c",
+    "istream": "c",
+    "ostream": "c",
+    "system_error": "c",
+    "array": "c",
+    "functional": "c",
+    "tuple": "c",
+    "type_traits": "c",
+    "utility": "c",
+    "random": "c",
+    "unistd.h": "c",
+    "player.h": "c"
+  },
+  "python.pythonPath": "/usr/bin/python3",
+  "cSpell.words": [
+    "DDOS",
+    "Inyeccion"
+  ]
+>>>>>>> origin/main
 }
