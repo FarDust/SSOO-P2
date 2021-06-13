@@ -2,6 +2,7 @@
 #include <math.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <time.h>
 
 int do_dmg(Entity* target, int dmg)
@@ -38,12 +39,31 @@ char * get_spell_name(Spell spell){
   };
   return SPELL_NAME[spell];
 }
+
+bool is_harm_spell(Spell spell){
+  bool is_harmfull[SPELL_COUNT] = {0};
+
+  is_harmfull[Estocada] = true;
+  is_harmfull[CorteCruzado] = true;
+  is_harmfull[Distraer] = true;
+
+  is_harmfull[Curar] = false;
+  is_harmfull[DestelloRegenerador] = true;
+  is_harmfull[DescargaVital] = true;
+
+  is_harmfull[InyeccionSQL] = false;
+  is_harmfull[AtaqueDDOS] = true;
+  is_harmfull[FuerzaBruta] = true;
+
+  return is_harmfull[spell];
+}
+
 int apply_buffs(Entity *caster, int amount){
   int new_amount = amount;
   if (caster->buff[AttackBuff] > 0)
   {
     new_amount = 2 * new_amount;
-    printf("Entity %ld - Damage buff x2", caster->buff[AttackBuff]);
+    printf("Entity %ld - Damage buff x2\n", caster->uuid);
   }
   return new_amount;
 }
@@ -51,10 +71,12 @@ int apply_buffs(Entity *caster, int amount){
 void damage(Entity *target, int amount){
   target->health =- (size_t)fmin(target->health, amount);
   target->health = (size_t)fmax(fmin(target->health, target->max_health), 0);
+  printf("Entity %ld - hit by %d hp\n", target->uuid, amount);
 }
 
 void heal(Entity *target, int amount){
   target->health = (size_t)fmin(fmax(0, target->health + amount), target->max_health);
+  printf("Entity %ld - heal by %d hp\n", target->uuid, amount);
 }
 
 void estocada(Entity *caster, Entity *target){
@@ -121,7 +143,7 @@ void inyeccion_sql(Entity *caster, Entity *target){
   {
     real_target = target;
   }
-  real_target->buff[AttackBuff] == 2;
+  real_target->buff[AttackBuff] = 2;
 }
 
 void ataque_ddos(Entity *caster, Entity *target){
