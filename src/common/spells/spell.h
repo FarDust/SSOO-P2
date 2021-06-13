@@ -1,3 +1,5 @@
+#include "../entity/entity.h"
+
 typedef enum
 {
   Estocada,
@@ -17,5 +19,9 @@ typedef enum
   Taunted,
   AttackBuff,
   BruteForceCharge,
-  Demoralized,
+  Desmoralized,
+  Toxic,
+  CanJump,
 } Buff;
+
+int do_dmg(Entity* target, int dmg);
