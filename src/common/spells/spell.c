@@ -23,7 +23,14 @@ char * get_spell_name(Spell spell){
     "Descarga Vital",
     "Inyeccion SQL",
     "Ataque DDOS",
-    "Fuerza Bruta"
+    "Fuerza Bruta",
+    "Salto",
+    "Espina Venenosa",
+    "Caso de copia",
+    "Reprobatron-9000",
+    "sudo rm-rf",
+    "Ruzgar",
+    "Coletazo"
   };
   return SPELL_NAME[spell];
 }

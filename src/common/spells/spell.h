@@ -11,6 +11,13 @@ typedef enum
   InyeccionSQL,
   AtaqueDDOS,
   FuerzaBruta,
+  Salto,
+  EspinaVenenosa,
+  CasoDeCopia,
+  Reprobatron,
+  SudoRmRf,
+  Ruzgar,
+  Coletazo
 } Spell;
 
 typedef enum
