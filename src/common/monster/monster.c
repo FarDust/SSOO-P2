@@ -2,7 +2,7 @@
 
 void select_monster_spell(Monster* monster)
 {
-  srand(time(NULL));
+  srand(1);
   int r = rand()%100;
   switch (monster->name)
   {

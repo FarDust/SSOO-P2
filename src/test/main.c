@@ -6,7 +6,6 @@ void test_player_spells(){
   Player *player = spawn_player(Hunter);
   Player *monster = spawn_player(Medic);
 
-  Player *player = spawn_player(Hunter);
   show_spells(player);
   Spell spell = get_spell_slot(player->spec, first);
   select_spell(player, spell);
