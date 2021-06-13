@@ -48,7 +48,7 @@ void select_monster_spell(Monster* monster)
 
 void cast_monster_spell(Monster *monster, Player** players, int n_players, int rounds)
 {
-  srand(time(NULL));
+  srand(1);
   Entity* targets[n_players];
   for (size_t i = 0; i < n_players; i++)
   {

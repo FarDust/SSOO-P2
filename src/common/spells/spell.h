@@ -24,7 +24,7 @@ typedef enum
 
 typedef enum
 {
-  CasoDeCopia,
+  CasoDeCopiaStatus,
   Sangrado,
   Taunted,
   TauntedBy,
