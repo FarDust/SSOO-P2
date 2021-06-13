@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <bool.h>
 #include "../spells/spell.h"
 #include "../entity/entity.h"
 
@@ -13,8 +14,6 @@ typedef struct player
 {
   size_t uuid;
   size_t health;
-  int toxic; // entero que marca el numero de turnos que este jugador esta envenenado
-  bool dermoralized;
   PlayerClass spec;
   Spell current_spell;
 } Player;

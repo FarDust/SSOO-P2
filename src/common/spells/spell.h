@@ -17,4 +17,5 @@ typedef enum
   Taunted,
   AttackBuff,
   BruteForceCharge,
+  Demoralized,
 } Buff;
