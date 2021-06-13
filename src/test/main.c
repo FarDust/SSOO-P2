@@ -1,4 +1,5 @@
 #include "../common/player/player.h"
+#include "../common/monster/monster.h"
 
 void test_player_spells(){
   Player *player = malloc(sizeof(Player));

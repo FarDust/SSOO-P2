@@ -28,7 +28,7 @@ typedef enum
   BruteForceCharge,
   Desmoralized,
   Toxic,
-  CanJump,
+  JumpBlocked,
 } Buff;
 
 char *get_spell_name(Spell spell);

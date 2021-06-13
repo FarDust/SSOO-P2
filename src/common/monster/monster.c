@@ -16,10 +16,10 @@ void select_monster_spell(Monster* monster)
     
     break;
   case Ruzalos:
-    if (monster->properties->buff[CanJump]==0)
+    if (monster->properties->buff[JumpBlocked]==1)
     {
       monster->current_spell = EspinaVenenosa;
-      monster->properties->buff[CanJump]=1;
+      monster->properties->buff[JumpBlocked]=0;
       return;
     }
     if (r < 40)

@@ -5,7 +5,7 @@
 void salto(Entity* monster, Entity* target)
 {
 	do_dmg(target, 1500);
-	monster->buff[CanJump] = 0;
+	monster->buff[JumpBlocked] = 1;
 };
 void espina_venenosa(Entity* target)
 {

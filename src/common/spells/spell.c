@@ -5,12 +5,12 @@ int do_dmg(Entity* target, int dmg)
     int dmg_done;
 	if (target->health < dmg)
 	{
-        dmg_done = target->health;
+    dmg_done = target->health;
 		target->health = 0;
-        return dmg_done;
+    return dmg_done;
 	} else {
 		target->health -= dmg;
-        return dmg;
+    return dmg;
 	}
 }
 char * get_spell_name(Spell spell){
