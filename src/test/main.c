@@ -12,12 +12,18 @@ void test_player_spells(){
   if (is_harm_spell(spell)){
     cast_spell(player->properties, monster->properties, spell);
   }
-  
+
+  show_status(player->properties);
+  show_status(monster->properties);
+
   show_spells(monster);
   Spell sec_spell = get_spell_slot(monster->spec, second);
   select_spell(monster, sec_spell);
 
-  cast_spell(player->properties, monster->properties, sec_spell);
+  cast_spell(monster->properties, player->properties, sec_spell);
+
+  show_status(player->properties);
+  show_status(monster->properties);
 
   kill_player(player);
   kill_player(monster);

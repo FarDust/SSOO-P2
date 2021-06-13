@@ -49,7 +49,7 @@ int apply_buffs(Entity *caster, int amount){
 }
 
 void damage(Entity *target, int amount){
-  target->health =- (size_t)fmin(target->health, amount);
+  target->health = target->health - (size_t)fmin(target->health, amount);
   target->health = (size_t)fmax(fmin(target->health, target->max_health), 0);
   printf("Entity %ld - hit by %d hp\n", target->uuid, amount);
 }

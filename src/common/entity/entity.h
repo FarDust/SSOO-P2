@@ -11,3 +11,4 @@ typedef struct entity
 } Entity;
 
 Entity *spawn_entity();
+void show_status(Entity *entity);
