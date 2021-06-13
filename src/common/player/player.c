@@ -93,7 +93,7 @@ void cast_spell(Entity *caster, Entity * target, Spell spell){
     time_t t;
     srand((unsigned) time(&t));
 
-    size_t selected_player = rand() % PLAYER_NUMBER;
+    size_t selected_player = rand() % current_player;
     Player * new_target = PLAYERS[selected_player];
     destello_regenerador_side_effect(caster, new_target->properties, (size_t)round((double)damage_dealt / 2));
     break;

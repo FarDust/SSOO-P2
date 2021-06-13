@@ -49,6 +49,29 @@
           "text": "-interpreter-exec console \"skip -gfi */build/glibc-eX1tMB/glibc-2.31/**/*\""
         }
       ]
+    },
+    {
+      "name": "(gdb) test",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/test",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "description": "Skip <path> files",
+          "text": "-interpreter-exec console \"skip -gfi */build/glibc-eX1tMB/glibc-2.31/**/*\""
+        }
+      ]
     }
   ]
 }
