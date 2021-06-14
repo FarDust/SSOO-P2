@@ -19,13 +19,10 @@ int main(int argc, char *argv[]){
 
   for(int i=0; i<5 ;i++)
   {
-    printf("i [%d] \n",i);
     informacion_thread->attention = i;
     pthread_t thread_id;
     pthread_create(&thread_id, NULL, Conexion, informacion_thread);
     players_info->escuchadores[i] = thread_id;
-    printf("i despues [%d] \n",informacion_thread->attention);
-    sleep(1);
   }
 
 

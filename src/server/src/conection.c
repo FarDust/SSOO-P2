@@ -11,6 +11,8 @@
 //https://www.man7.org/linux/man-pages/man2/bind.2.html
 //https://www.man7.org/linux/man-pages/man2/accept.2.html
 
+int id_threads = 0;
+
 char * revert(char * message){
   //Se invierte el mensaje
 
@@ -90,7 +92,8 @@ Informacion_conectar * prepare_sockets_and_get_clients(char * IP, int port){
 //Acá está la comunicacion directa a cada cliente
 void *Conexion(Informacion_juego * informacion_thread)
 {
-  int my_attention = informacion_thread->attention;
+  int my_attention = id_threads;
+  id_threads += 1;
   informacion_thread->jugador[my_attention] = malloc(sizeof(Jugador));
   printf("se le asigno la attention %d\n", my_attention);
   int socket;
