@@ -1,5 +1,10 @@
 #include "conection.h"
 #include <string.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <sys/socket.h>
+#include "game/gameboard.h"
+
 //LINKS REFERENCIAS:
 //https://www.man7.org/linux/man-pages/man2/socket.2.html
 //https://man7.org/linux/man-pages/man7/socket.7.html
@@ -31,25 +36,23 @@ char * revert(char * message){
 void *Th_conectador(Informacion_conectar * info_conectar)
 {
   struct sockaddr_in client_addr[5];
-
   socklen_t addr_size = sizeof(client_addr[0]);
-
   char * welcome = "Bienvenido Cliente !!";
   
-  for (int i = 0; i<5;i++){
+  for (int i = 0; i<5;i++){ //Seteamos ninguno conectado
     info_conectar->conexiones[i] = false;
   }
-  printf("esperando clientes\n");
+  printf("Esperando clientes\n");
   
   for (int i = 0; i<5; i++){
   info_conectar->sockets_clients[i] = accept(info_conectar->server_socket, (struct sockaddr *)&client_addr[i], &addr_size);
   if (i == 0)
-  {
+  { // Si es el lider recibe msjs distintos
     server_send_message(info_conectar ->sockets_clients[i], 3, welcome);
-  } else {
+  } else { // Jugador normal
     server_send_message(info_conectar ->sockets_clients[i], 2, welcome);
   }
-  printf("se conectó un cliente %d\n", i);
+  printf("se conectó un cliente de índice %d\n", i);
   info_conectar->conexiones[i] = true;
   }
   return NULL;
@@ -75,27 +78,23 @@ Informacion_conectar * prepare_sockets_and_get_clients(char * IP, int port){
 
   Informacion_conectar * info_conectar = malloc(sizeof(Informacion_conectar));
   info_conectar->server_socket = server_socket;
-
   int ret2 = bind(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr));
-
   // Se coloca el socket en modo listening
   int ret3 = listen(server_socket, 1);
-
   pthread_t thread_id;
   pthread_create(&thread_id, NULL, Th_conectador, info_conectar);
   //pthread_join(thread_id, NULL);
-
-  printf("se retornó\n");
   return info_conectar;
 }
 
 //Acá está la comunicacion directa a cada cliente
 void *Conexion(Informacion_juego * informacion_thread)
 {
+
   int my_attention = id_threads;
   id_threads += 1;
-  informacion_thread->jugador[my_attention] = malloc(sizeof(Jugador));
-  printf("se le asigno la attention %d\n", my_attention);
+  Player **player_list = informacion_thread->jugadores;
+  Player *player = spawn_player();
   int socket;
 
   while (1)
@@ -105,50 +104,49 @@ void *Conexion(Informacion_juego * informacion_thread)
     
     if (msg_code == 2) //Recepción del nombre, son todos validos
     {
-      printf("Se recibió mensaje 2\n");
       char * client_message = server_receive_payload(socket);
-      printf("El cliente %d seteó su nombre como: %s\n", my_attention+1, client_message);
+      printf("-> El cliente %d seteó su nombre como: %s\n", my_attention+1, client_message);
 
-      informacion_thread->jugador[my_attention]->nombre = client_message;
-      printf("my atention %d\n", my_attention);
-      printf("se guardo el nombre como %s \n", informacion_thread->jugador[my_attention]->nombre);
-      char * response = revert(client_message);
+      player_list[my_attention]->name = client_message;
+      char * response = "Se seteó su nombre en el servidor";
 
-      // Le enviamos la respuesta
       server_send_message(socket, 4, response);
     }
-    else if (msg_code == 3) //Recepción de la clase, son todas validos
+    else if (msg_code == 3) //Recepción de la clase, se validó en cliente
     {
-
-      printf("Se recibió mensaje 3\n");
       char * client_message = server_receive_payload(socket);
-      printf("El cliente %d eligio la clase: %s\n", my_attention+1, client_message);
+      printf("-> El cliente %d eligio la clase: %s\n", my_attention+1, client_message);
 
-      informacion_thread->jugador[my_attention]->clase = client_message;
-      char * response = revert(client_message);
+      set_player_class(player_list[my_attention], atoi(client_message));
+      char * response = "Se seteó su clase en el servidor";
 
       if (my_attention == 0) // Si es que es lider, le mandamos una respuesta
       {
         server_send_message(socket, 5, response);
+      } else {
+        server_send_message(socket, 1, response);
       }
     }
-    else if (msg_code == 4) // Revision de que todos hayan elegido nombre
+    else if (msg_code == 4) // Revision de que todos hayan elegido nombre y clase para comenzar
     {
       char * client_message = server_receive_payload(socket);
-      printf("El lider quiere partir la partida, se revisa si todos han elegido nombre\n");
+      printf("-> El lider quiere partir la partida, se revisa si todos han elegido nombre\n");
       bool listo = true;
       char * response = revert(client_message);
-      for (int i = 0;i<5;i++){
-        printf("esta conectado? %d\n", informacion_thread->informacion_conexiones->conexiones[i]);
+      for (int i = 0;i<PLAYER_NUMBER;i++){
+        
         if(informacion_thread->informacion_conexiones->conexiones[i]){
-          //ver si hay nombre y clase en esa misma posicion
-          printf("pos %d; nombre %s; clase %s\n",i, informacion_thread->jugador[i]->nombre, informacion_thread->jugador[i]->clase);
-          if (informacion_thread->jugador[i]->nombre == NULL){
+          printf("-> El cliente %d está conectado\n", i);
+          //ver si hay nombre y clase elegido en esa misma posición
+          //printf("pos %d; nombre %s; clase %s\n",i, player_list[i]->name, get_class_name(player_list[i]->spec));
+          if (player_list[i]->name == NULL){
             listo = false;
+            printf("-> El cliente %d no está listo\n", i);
             break;
           }
-          if (informacion_thread->jugador[i]->clase == NULL){
+          if (player_list[i]->spec == -1){
             listo = false;
+            printf("-> El cliente %d no está listo\n", i);
             break;
           }
           
@@ -157,9 +155,13 @@ void *Conexion(Informacion_juego * informacion_thread)
 
       if (listo)
       {
-        //mandamos el juego
+        printf("-> Todo listo\n");
+        //Parte la partida
+        next_round(informacion_thread, informacion_thread->informacion_conexiones);
+
+
       } else 
-      {
+      { //Se reenvia pregunta al lider
         char * response = "Algun jugador no esta listo";
         server_send_message(socket, 5, response);
       }

@@ -2,8 +2,10 @@
 
 client
 server
+test
 !src/client
 !src/server
+!src/test
 
 P2.pdf
 

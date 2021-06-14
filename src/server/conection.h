@@ -1,3 +1,6 @@
+#pragma once
+
+
 #include <pthread.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -10,7 +13,7 @@
 #include <netdb.h>
 #include <stdbool.h>
 #include "comunication.h"
-
+#include "game/structs_gameboard.h"
 
 //http://manpages.ubuntu.com/manpages/trusty/man7/sys_socket.h.7posix.html
 //https://pubs.opengroup.org/onlinepubs/009695399/basedefs/sys/types.h.html
@@ -19,21 +22,17 @@
 //https://pubs.opengroup.org/onlinepubs/7908799/xns/netdb.h.html
 
 typedef struct informacion_conectar{
-  int sockets_clients[5];
+  int sockets_clients[PLAYER_NUMBER];
   int server_socket;
-  bool conexiones[5];
-  pthread_t escuchadores[5];
+  bool conexiones[PLAYER_NUMBER];
+  pthread_t escuchadores[PLAYER_NUMBER];
 
 } Informacion_conectar;
 
-typedef struct jugador{
-  char* nombre;
-  char* clase;
-} Jugador;
-
 typedef struct informacion_juego{
   Informacion_conectar* informacion_conexiones;
-  Jugador* jugador[5];
+  Player** jugadores;
+  GameStatus* status;
   int attention;
 
 } Informacion_juego;

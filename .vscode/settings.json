@@ -22,11 +22,17 @@
     "type_traits": "c",
     "utility": "c",
     "random": "c",
-    "unistd.h": "c"
+    "unistd.h": "c",
+    "player.h": "c",
+    "spec_spells.h": "c",
+    "comunication.h": "c",
+    "utility.h": "c",
+    "structs_gameboard.h": "c"
   },
   "python.pythonPath": "/usr/bin/python3",
   "cSpell.words": [
     "DDOS",
     "Inyeccion"
-  ]
+  ],
+  "C_Cpp.errorSquiggles": "Disabled"
 }
