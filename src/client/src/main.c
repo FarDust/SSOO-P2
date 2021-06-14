@@ -41,7 +41,7 @@ int main (int argc, char *argv[]){
 
       client_send_message(server_socket, option, response);
     }
-    if (msg_code == 3) { // Acá se setea el jugador lider
+    else if (msg_code == 3) { // Acá se setea el jugador lider
       char * message = client_receive_payload(server_socket);
       printf("El servidor dice: %s\n", message);
       free(message);
@@ -55,11 +55,29 @@ int main (int argc, char *argv[]){
 
       client_send_message(server_socket, option, response);
     }
-    if (msg_code == 1) { // Acá se setea el jugador lider
+    else if (msg_code == 4) { // Se selecciona clase
       char * message = client_receive_payload(server_socket);
+      printf("El servidor dice: %s\n", message);
       free(message);
-      int option = 0;
-      char * response = "nada";
+
+      printf("Seleccione su clase\n");
+      int option = 3;
+
+      printf("Ingrese su mensaje: ");
+      char * response = get_input();
+
+      client_send_message(server_socket, option, response);
+    }
+    else if (msg_code == 5) { // Solo lo recibe el lider, para partir la partida
+      char * message = client_receive_payload(server_socket);
+      printf("El servidor dice: %s\n", message);
+      free(message);
+
+      printf("Listo para jugar?\n");
+      int option = 4;
+
+      printf("Ingrese su mensaje: ");
+      char * response = get_input();
 
       client_send_message(server_socket, option, response);
     }

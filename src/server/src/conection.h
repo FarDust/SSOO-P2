@@ -18,26 +18,29 @@
 //https://pubs.opengroup.org/onlinepubs/7908799/xns/arpainet.h.html
 //https://pubs.opengroup.org/onlinepubs/7908799/xns/netdb.h.html
 
-typedef struct players_info{
-  int sockets[5];
-} PlayersInfo;
-
-
-
-typedef struct thread_conectar{
-  PlayersInfo* sockets_clients;
+typedef struct informacion_conectar{
+  int sockets_clients[5];
   int server_socket;
+  bool conexiones[5];
   pthread_t escuchadores[5];
 
-} Thread_conectar;
+} Informacion_conectar;
 
-typedef struct thread_escuchar{
-  PlayersInfo* sockets_clients;
+typedef struct jugador{
+  char* nombre;
+  char* clase;
+} Jugador;
+
+typedef struct informacion_juego{
+  Informacion_conectar* informacion_conexiones;
+  Jugador* jugador[5];
   int attention;
 
-} Thread_escuchar;
+} Informacion_juego;
 
-Thread_conectar * prepare_sockets_and_get_clients(char * IP, int port);
-void *Th_conectador(Thread_conectar * info_conectar);
-void *Conexion(Thread_escuchar * informacion_thread);
+
+
+Informacion_conectar * prepare_sockets_and_get_clients(char * IP, int port);
+void *Th_conectador(Informacion_conectar * info_conectar);
+void *Conexion(Informacion_juego * informacion_thread);
 char * revert(char * message);
