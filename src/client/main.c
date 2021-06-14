@@ -3,19 +3,8 @@
 #include "conection.h"
 #include "comunication.h"
 #include "player/prompts.h"
-
-char * get_input(){
-  char * response = malloc(20);
-  int pos=0;
-  while (1){
-    char c = getchar();
-    if (c == '\n') break;
-    response[pos] = c;
-    pos++;
-  }
-  response[pos] = '\0';
-  return response;
-}
+#include "utility/utility.h"
+#include "gameboard/gameboard.h"
 
 
 
@@ -82,8 +71,9 @@ int main (int argc, char *argv[]){
       char * response = get_input();
 
       client_send_message(server_socket, option, response);
+    } else if (msg_code == ACTIVATE_PROMPT){ // Activa la comunicación del player con el servidor en su turno
+      player_turn_watcher(server_socket);
     }
-
 
     printf("------------------\n");
   }

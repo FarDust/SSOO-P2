@@ -24,7 +24,9 @@
     "random": "c",
     "unistd.h": "c",
     "player.h": "c",
-    "spec_spells.h": "c"
+    "spec_spells.h": "c",
+    "comunication.h": "c",
+    "utility.h": "c"
   },
   "python.pythonPath": "/usr/bin/python3",
   "cSpell.words": [

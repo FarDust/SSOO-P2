@@ -85,6 +85,10 @@ void estocada(Entity *caster, Entity *target){
   target->buff[Sangrado] = (unsigned int)fmin(target->buff[Sangrado], 3);
 };
 
+void sangrado(Entity *target){
+  damage(target, target->buff[Sangrado] * 500);
+};
+
 void corte_cruzado(Entity *caster, Entity *target){
   damage(target,  apply_buffs(caster, 3000));
 }

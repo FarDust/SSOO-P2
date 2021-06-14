@@ -4,8 +4,30 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-Entity *ENTITIES[256];
+Entity *ENTITIES[MAX_ENTITIES];
 size_t current_entity = 0;
+
+size_t get_entities_number(){
+  return current_entity;
+}
+
+Entity * get_entity_by(size_t uuid){
+  for (size_t entity = 0; entity < get_entities_number(); entity++)
+  {
+    if (ENTITIES[entity] != NULL && ENTITIES[entity]->uuid == uuid){
+      return ENTITIES[entity];
+    }
+  }
+  return NULL;
+}
+
+Entity * get_entity(size_t entity){
+  return ENTITIES[entity];
+}
+
+Entity * set_entity(size_t entity, Entity * value){
+  return ENTITIES[entity] = value;
+}
 
 Entity * spawn_entity(){
   Entity *entity = malloc(sizeof(Entity));
@@ -15,6 +37,18 @@ Entity * spawn_entity(){
   ENTITIES[current_entity] = entity;
   current_entity += 1;
   return entity;
+}
+
+void kill_entity(Entity * entity){
+  free(entity);
+}
+
+void reset_entities(){
+  for (size_t entity= 0; entity< get_entities_number(); entity++)
+  {
+    kill_entity(get_entity(entity));
+  }
+  current_entity = 0;
 }
 
 void show_health(Entity * entity){
@@ -58,9 +92,11 @@ void show_buffs(Entity * entity){
   }
 }
 
-void show_status(Entity * entity){
+void show_status(Entity * entity, bool with_uuid){
   printf("=======================\n");
-  printf("Entity UUID: %ld\n", entity->uuid);
+  if (with_uuid){
+    printf("Entity UUID: %ld\n", entity->uuid);
+  }
   show_health(entity);
   printf("\n");
   show_buffs(entity);
