@@ -1,5 +1,8 @@
 #include "conection.h"
 #include <string.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <sys/socket.h>
 //LINKS REFERENCIAS:
 //https://www.man7.org/linux/man-pages/man2/socket.2.html
 //https://man7.org/linux/man-pages/man7/socket.7.html
@@ -91,7 +94,8 @@ Informacion_conectar * prepare_sockets_and_get_clients(char * IP, int port){
 void *Conexion(Informacion_juego * informacion_thread)
 {
   int my_attention = informacion_thread->attention;
-  informacion_thread->jugador[my_attention] = malloc(sizeof(Jugador));
+  Player **player_list = informacion_thread->jugadores;
+  Player *player = spawn_player();
   printf("se le asigno la attention %d\n", my_attention);
   int socket;
 
@@ -106,9 +110,9 @@ void *Conexion(Informacion_juego * informacion_thread)
       char * client_message = server_receive_payload(socket);
       printf("El cliente %d seteó su nombre como: %s\n", my_attention+1, client_message);
 
-      informacion_thread->jugador[my_attention]->nombre = client_message;
+      player_list[my_attention]->name = client_message;
       printf("my atention %d\n", my_attention);
-      printf("se guardo el nombre como %s \n", informacion_thread->jugador[my_attention]->nombre);
+      printf("se guardo el nombre como %s \n", player_list[my_attention]->name);
       char * response = revert(client_message);
 
       // Le enviamos la respuesta
@@ -121,7 +125,7 @@ void *Conexion(Informacion_juego * informacion_thread)
       char * client_message = server_receive_payload(socket);
       printf("El cliente %d eligio la clase: %s\n", my_attention+1, client_message);
 
-      informacion_thread->jugador[my_attention]->clase = client_message;
+      set_player_class(player_list[my_attention], atoi(client_message));
       char * response = revert(client_message);
 
       if (my_attention == 0) // Si es que es lider, le mandamos una respuesta
@@ -135,16 +139,16 @@ void *Conexion(Informacion_juego * informacion_thread)
       printf("El lider quiere partir la partida, se revisa si todos han elegido nombre\n");
       bool listo = true;
       char * response = revert(client_message);
-      for (int i = 0;i<5;i++){
+      for (int i = 0;i<PLAYER_NUMBER;i++){
         printf("esta conectado? %d\n", informacion_thread->informacion_conexiones->conexiones[i]);
         if(informacion_thread->informacion_conexiones->conexiones[i]){
-          //ver si hay nombre y clase en esa misma posicion
-          printf("pos %d; nombre %s; clase %s\n",i, informacion_thread->jugador[i]->nombre, informacion_thread->jugador[i]->clase);
-          if (informacion_thread->jugador[i]->nombre == NULL){
+          //ver si hay nombre y clase en esa misma posición
+          printf("pos %d; nombre %s; clase %s\n",i, player_list[i]->name, get_class_name(player_list[i]->spec));
+          if (player_list[i]->name == NULL){
             listo = false;
             break;
           }
-          if (informacion_thread->jugador[i]->clase == NULL){
+          if (player_list[i]->spec == -1){
             listo = false;
             break;
           }
