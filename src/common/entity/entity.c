@@ -1,6 +1,8 @@
 #include "entity.h"
+#include "../spells/spell.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 Entity *ENTITIES[256];
 size_t current_entity = 0;
@@ -33,7 +35,27 @@ void show_health(Entity * entity){
 }
 
 void show_buffs(Entity * entity){
-  
+  if(entity->buff[AttackBuff] > 0){
+    printf("\033[0;33m");
+    printf("Doble ataque ⚔: %d turnos\n", entity->buff[AttackBuff]);
+    printf("\033[0m");
+  }
+  if(entity->buff[Sangrado] > 0){
+    printf("\033[0;31m"); 
+    printf("Sangrado 💉: %d acumulaciones\n", entity->buff[Sangrado]);
+    printf("\033[0m"); 
+  }
+  if(entity->buff[Toxic] > 0){
+    printf("\033[0;32m"); 
+    printf("Envenenado ☠: %d turnos\n", entity->buff[Toxic]);
+    printf("\033[0m"); 
+  }
+  if (entity->buff[Taunted] == true){
+    printf("Distraído: 😡\n");
+  }
+  if (entity->buff[Desmoralized] > 0){
+    printf("Desmoralizado: 😓\n");
+  }
 }
 
 void show_status(Entity * entity){

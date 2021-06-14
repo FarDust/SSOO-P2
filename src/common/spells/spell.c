@@ -97,7 +97,7 @@ void distraer(Entity *caster, Entity *target){
 
 void curar(Entity *caster, Entity *target){
   size_t RECOVERY_AMOUNT = 2000;
-  if (caster->buff[CasoDeCopia] == true)
+  if (caster->buff[CasoDeCopiaStatus] == true)
   {
     heal(caster, RECOVERY_AMOUNT);
   }
@@ -117,7 +117,7 @@ size_t destello_regenerador(Entity *caster, Entity *target){
 }
 
 void destello_regenerador_side_effect(Entity *caster, Entity *target, size_t amount){
-  if (caster->buff[CasoDeCopia] == true)
+  if (caster->buff[CasoDeCopiaStatus] == true)
   {
     heal(caster, amount);
   }
@@ -135,7 +135,7 @@ void descarga_vital(Entity *caster, Entity *target){
 void inyeccion_sql(Entity *caster, Entity *target){
   /* set turns of attack buff */
   Entity *real_target;
-  if (caster->buff[CasoDeCopia] == true)
+  if (caster->buff[CasoDeCopiaStatus] == true)
   {
     real_target = caster;
   }
