@@ -9,9 +9,9 @@ void salto(Entity* monster, Entity* target)
 };
 void espina_venenosa(Entity* target)
 {
-	if (target->buff[Toxic] == 1){
+	if (target->buff[Toxic] < 0){
 		do_dmg(target, 500);
 	} else {
-		target->buff[Toxic] = 1;
+		target->buff[Toxic] = 3;
 	}
 };

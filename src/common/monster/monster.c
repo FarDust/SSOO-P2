@@ -1,4 +1,5 @@
 #include "./monster.h"
+#include <time.h>
 
 Monster* MONSTER;
 
@@ -30,7 +31,8 @@ Monster * spawn_monster(MonsterClass spec){
 
 void select_monster_spell(Monster* monster)
 {
-  srand(1);
+  time_t t;
+  srand((unsigned) time(&t));
   int r = rand()%100;
   switch (monster->name)
   {
@@ -81,7 +83,8 @@ void kill_monster(Monster* monster){
 
 void cast_monster_spell(Monster *monster, Player** players, int n_players, int rounds)
 {
-  srand(1);
+  time_t t;
+  srand((unsigned) time(&t));
   Entity* targets[n_players];
   for (size_t i = 0; i < n_players; i++)
   {
