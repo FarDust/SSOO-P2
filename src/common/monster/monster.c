@@ -1,4 +1,8 @@
 #include "./monster.h"
+#include <time.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 Monster* MONSTER;
 
@@ -30,7 +34,8 @@ Monster * spawn_monster(MonsterClass spec){
 
 void select_monster_spell(Monster* monster)
 {
-  srand(1);
+  time_t t;
+  srand((unsigned) time(&t));
   int r = rand()%100;
   switch (monster->name)
   {
@@ -81,14 +86,15 @@ void kill_monster(Monster* monster){
 
 void cast_monster_spell(Monster *monster, Player** players, int n_players, int rounds)
 {
-  srand(1);
+  time_t t;
+  srand((unsigned) time(&t));
   Entity* targets[n_players];
   for (size_t i = 0; i < n_players; i++)
   {
     targets[i] = players[i]->properties;
   }
   int target = rand() % n_players;
-
+  printf("Entity %ld cast %s in Entity %ld\n", monster->properties->uuid, get_spell_name(monster->current_spell), targets[target]->uuid);
   switch (monster->current_spell)
   {
   case Salto:
@@ -104,7 +110,7 @@ void cast_monster_spell(Monster *monster, Player** players, int n_players, int r
     coletazo(targets, n_players);
     break;
   case CasoDeCopia:
-    caso_de_copia(monster->properties, players[target]->spec, targets[target]);
+    caso_de_copia(monster->properties, players[target]->spec, players[rand() % n_players],targets[target]);
     break;
   case Reprobatron:
     reprobatron(targets[target]);
