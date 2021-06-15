@@ -12,9 +12,11 @@ int do_dmg(Entity* target, int dmg)
 	{
     dmg_done = target->health;
 		target->health = 0;
+    printf("Entity %ld - hit by %d hp\n", target->uuid, dmg_done);
     return dmg_done;
 	} else {
 		target->health -= dmg;
+    printf("Entity %ld - hit by %d hp\n", target->uuid, dmg);
     return dmg;
 	}
 }
