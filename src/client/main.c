@@ -19,13 +19,13 @@ int main (int argc, char *argv[]){
   while (1){
     int msg_code = client_receive_id(server_socket);
 
-    if (msg_code == 1) { // Mensaje recibido para confirmar seteo de clase por jugador no lider
+    if (msg_code == STANDARD_MESSAGE) { // Mensaje recibido para confirmar seteo de clase por jugador no lider
       char * message = client_receive_payload(server_socket);
       printf("-> El servidor dice: %s\n", message);
       free(message);
 
     }
-    else if (msg_code == 2) { //Recibimos un mensaje inicial del servidor para un jugador cualquiera, se pide el nombre
+    else if (msg_code == GET_NAME) { //Recibimos un mensaje inicial del servidor para un jugador cualquiera, se pide el nombre
       char * message = client_receive_payload(server_socket);
       printf("-> El servidor dice: %s\n", message);
       free(message);
@@ -36,7 +36,7 @@ int main (int argc, char *argv[]){
 
       client_send_message(server_socket, option, response);
     }
-    else if (msg_code == 3) { // Mensaje recibido por el jugador lider y se le pide el nombre.
+    else if (msg_code == GET_NAME_LEADER) { // Mensaje recibido por el jugador lider y se le pide el nombre.
       char * message = client_receive_payload(server_socket);
       printf("-> El servidor dice: %s\n", message);
       free(message);
@@ -48,7 +48,7 @@ int main (int argc, char *argv[]){
 
       client_send_message(server_socket, option, response);
     }
-    else if (msg_code == 4) { // Se selecciona clase de cada jugador
+    else if (msg_code == SELECT_SPELL) { // Se selecciona clase de cada jugador
       char * message = client_receive_payload(server_socket);
       printf("-> El servidor dice: %s\n", message);
       free(message);
@@ -68,7 +68,7 @@ int main (int argc, char *argv[]){
       }
       client_send_message(server_socket, option, response);
     }
-    else if (msg_code == 5) { // Solo lo recibe el lider, para partir la partida
+    else if (msg_code == READY) { // Solo lo recibe el lider, para partir la partida
       char * message = client_receive_payload(server_socket);
       printf("-> El servidor dice: %s\n", message);
       free(message);
@@ -80,8 +80,10 @@ int main (int argc, char *argv[]){
 
       client_send_message(server_socket, option, response);
     } else if (msg_code == ACTIVATE_PROMPT){ // Activa la comunicación del player con el servidor en su turno
+      char * message = client_receive_payload(server_socket);
+      printf("Es tu turno!\n\n");
       player_turn_watcher(server_socket);
-    }
+    } 
 
     printf("------------------\n");
   }

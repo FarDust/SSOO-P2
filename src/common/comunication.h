@@ -1,0 +1,16 @@
+#pragma once
+
+typedef enum serverMessageCode
+{
+  NON_DEFINED,
+  STANDARD_MESSAGE,
+  GET_NAME,
+  GET_NAME_LEADER,
+  SELECT_SPELL,
+  READY,
+  ACTIVATE_PROMPT,
+  GET_ENTITIES,
+  AVAILABLE_TARGET,
+  PLAYER_TURN,
+  SKIP_FASE
+} ServerMessageCode;

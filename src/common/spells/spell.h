@@ -4,6 +4,7 @@
 #include "../entity/entity.h"
 
 #define SPELL_COUNT 9
+#define MAX_BUFFS 16 
 typedef enum
 {
   Estocada,

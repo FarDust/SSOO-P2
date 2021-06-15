@@ -12,7 +12,6 @@ int main(int argc, char *argv[]){
   // Se crea el servidor y se obtienen los sockets de los clientes.
   Informacion_juego * informacion_juego = prepare_sockets_and_get_clients(IP, PORT);
 
-
   while (!informacion_juego->ready)
   {
     sleep(1);
