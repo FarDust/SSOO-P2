@@ -29,7 +29,7 @@ OPT=-g # Guardar toda la información para poder debugear. No optimiza
 # -Wunused = (Warn Unused) Da aviso de las variables que no se estan usando
 # -Wall    = (Warn All) Da aviso de todos los posibles errores de compilación
 # $(OPT)   = Nivel de optimización
-CFLAGS=-Wunused -Wall $(OPT)
+CFLAGS=-Wunused -Wall $(OPT) -pthread
 
 ###############################################################################
 # LIBRERÍAS                                                                   #

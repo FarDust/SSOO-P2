@@ -1,5 +1,6 @@
 #include "../common/player/player.h"
 #include "../common/monster/monster.h"
+#include <stdbool.h>
 
 void test_player_spells(){
 
@@ -14,9 +15,15 @@ void test_player_spells(){
   if (is_harm_spell(spell)){
     cast_spell(player->properties, monster->properties, spell);
   }
-  
+  show_status(player->properties, true);
+  show_status(monster->properties, true);
+
   select_monster_spell(monster);
   cast_monster_spell(monster, players, 1, 4);
+
+  show_status(player->properties, true);
+  show_status(monster->properties, true);
+
   kill_player(player);
   kill_monster(monster);
 }

@@ -69,7 +69,7 @@ int apply_buffs(Entity *caster, int amount){
 }
 
 void damage(Entity *target, int amount){
-  target->health =- (size_t)fmin(target->health, amount);
+  target->health = target->health - (size_t)fmin(target->health, amount);
   target->health = (size_t)fmax(fmin(target->health, target->max_health), 0);
   printf("Entity %ld - hit by %d hp\n", target->uuid, amount);
 }
@@ -85,6 +85,10 @@ void estocada(Entity *caster, Entity *target){
   target->buff[Sangrado] = (unsigned int)fmin(target->buff[Sangrado], 3);
 };
 
+void sangrado(Entity *target){
+  damage(target, target->buff[Sangrado] * 500);
+};
+
 void corte_cruzado(Entity *caster, Entity *target){
   damage(target,  apply_buffs(caster, 3000));
 }
@@ -97,7 +101,7 @@ void distraer(Entity *caster, Entity *target){
 
 void curar(Entity *caster, Entity *target){
   size_t RECOVERY_AMOUNT = 2000;
-  if (caster->buff[CasoDeCopia] == true)
+  if (caster->buff[CasoDeCopiaStatus] == true)
   {
     heal(caster, RECOVERY_AMOUNT);
   }
@@ -117,7 +121,7 @@ size_t destello_regenerador(Entity *caster, Entity *target){
 }
 
 void destello_regenerador_side_effect(Entity *caster, Entity *target, size_t amount){
-  if (caster->buff[CasoDeCopia] == true)
+  if (caster->buff[CasoDeCopiaStatus] == true)
   {
     heal(caster, amount);
   }
@@ -135,7 +139,7 @@ void descarga_vital(Entity *caster, Entity *target){
 void inyeccion_sql(Entity *caster, Entity *target){
   /* set turns of attack buff */
   Entity *real_target;
-  if (caster->buff[CasoDeCopia] == true)
+  if (caster->buff[CasoDeCopiaStatus] == true)
   {
     real_target = caster;
   }

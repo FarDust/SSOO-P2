@@ -7,31 +7,61 @@
 Player *PLAYERS[PLAYER_NUMBER];
 size_t current_player = 0;
 
-Player * spawn_player(PlayerClass spec){
+char *CLASS_NAME[] = {
+    "Cazador 🦌",
+    "Medico 💊",
+    "Hacker 💻"};
+
+Player ** get_player_list(){
+  return PLAYERS;
+}
+
+size_t get_player_count(){
+  return current_player;
+}
+
+Player * spawn_player(){
   Player *player = malloc(sizeof(Player));
   player->properties = spawn_entity();
-  player->spec = spec;
   player->current_spell = 0;
-  
-  switch (player->spec)
+  player->spec = -1;
+  player->name = NULL;
+  PLAYERS[current_player] = player;
+  current_player += 1;
+  return player;
+}
+
+size_t get_spec_health(PlayerClass spec){
+  size_t health = 0;
+  switch (spec)
   {
   case Hunter:
-    player->properties->health = 5000;
+    health = 5000;
     break;
   case Medic:
-    player->properties->health = 3000;
+    health = 3000;
     break;
   case Hacker:
-    player->properties->health = 2500;
+    health = 2500;
     break;
 
   default:
     break;
   }
+  return health;
+}
+
+void set_player_class(Player * player, PlayerClass spec){
+  player->spec = spec;
+  player->properties->health = get_spec_health(spec);
   player->properties->max_health = player->properties->health;
-  PLAYERS[current_player] = player;
-  current_player += 1;
-  return player;
+}
+
+char* get_class_name(PlayerClass spec){
+  if (spec == -1){
+    return "NULL";
+  }
+  return CLASS_NAME[spec];
 }
 
 void kill_player(Player * player){
