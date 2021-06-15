@@ -24,6 +24,7 @@
 typedef struct informacion_conectar{
   int sockets_clients[PLAYER_NUMBER];
   int server_socket;
+  pthread_t id_thread;
   bool conexiones[PLAYER_NUMBER];
   pthread_t escuchadores[PLAYER_NUMBER];
 
@@ -34,12 +35,12 @@ typedef struct informacion_juego{
   Player** jugadores;
   GameStatus* status;
   int attention;
-
+  bool ready;
 } Informacion_juego;
 
 
 
-Informacion_conectar * prepare_sockets_and_get_clients(char * IP, int port);
-void *Th_conectador(Informacion_conectar * info_conectar);
+Informacion_juego * prepare_sockets_and_get_clients(char * IP, int port);
+void *Th_conectador(Informacion_juego * info_juego);
 void *Conexion(Informacion_juego * informacion_thread);
 char * revert(char * message);

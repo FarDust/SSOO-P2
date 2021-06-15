@@ -22,6 +22,7 @@ typedef struct player
 } Player;
 
 Player ** get_player_list();
+size_t get_player_count();
 Player * spawn_player();
 size_t get_spec_health(PlayerClass spec);
 void set_player_class(Player * player, PlayerClass spec);

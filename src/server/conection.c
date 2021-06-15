@@ -33,33 +33,38 @@ char * revert(char * message){
 }
 
 
-void *Th_conectador(Informacion_conectar * info_conectar)
+void *Th_conectador(Informacion_juego * info_juego)
 {
   struct sockaddr_in client_addr[5];
   socklen_t addr_size = sizeof(client_addr[0]);
   char * welcome = "Bienvenido Cliente !!";
   
   for (int i = 0; i<5;i++){ //Seteamos ninguno conectado
-    info_conectar->conexiones[i] = false;
+    info_juego->informacion_conexiones->conexiones[i] = false;
   }
   printf("Esperando clientes\n");
   
   for (int i = 0; i<5; i++){
-  info_conectar->sockets_clients[i] = accept(info_conectar->server_socket, (struct sockaddr *)&client_addr[i], &addr_size);
-  if (i == 0)
-  { // Si es el lider recibe msjs distintos
-    server_send_message(info_conectar ->sockets_clients[i], 3, welcome);
-  } else { // Jugador normal
-    server_send_message(info_conectar ->sockets_clients[i], 2, welcome);
-  }
-  printf("se conectó un cliente de índice %d\n", i);
-  info_conectar->conexiones[i] = true;
+    info_juego->informacion_conexiones->sockets_clients[i] = accept(info_juego->informacion_conexiones->server_socket, (struct sockaddr *)&client_addr[i], &addr_size);
+
+    pthread_t thread_id;
+    pthread_create(&thread_id, NULL, Conexion, info_juego);
+    info_juego->informacion_conexiones->escuchadores[i] = thread_id;
+
+    if (i == 0)
+    { // Si es el lider recibe mensajes distintos
+      server_send_message(info_juego->informacion_conexiones ->sockets_clients[i], 3, welcome);
+    } else { // Jugador normal
+      server_send_message(info_juego->informacion_conexiones ->sockets_clients[i], 2, welcome);
+    }
+    printf("se conectó un cliente de índice %d\n", i);
+    info_juego->informacion_conexiones->conexiones[i] = true;
   }
   return NULL;
 }
 
 
-Informacion_conectar * prepare_sockets_and_get_clients(char * IP, int port){
+Informacion_juego * prepare_sockets_and_get_clients(char * IP, int port){
   // Se define la estructura para almacenar info del socket del servidor al momento de su creación
   struct sockaddr_in server_addr;
 
@@ -76,15 +81,22 @@ Informacion_conectar * prepare_sockets_and_get_clients(char * IP, int port){
   inet_aton(IP, &server_addr.sin_addr);
   server_addr.sin_port = htons(port);
 
-  Informacion_conectar * info_conectar = malloc(sizeof(Informacion_conectar));
-  info_conectar->server_socket = server_socket;
+  Informacion_juego* informacion_thread = malloc(sizeof(Informacion_juego));
+  informacion_thread->jugadores = get_player_list();
+  informacion_thread->status = malloc(sizeof(GameStatus));
+
+  informacion_thread->informacion_conexiones = malloc(sizeof(Informacion_conectar));
+  informacion_thread->informacion_conexiones->server_socket = server_socket;
+
   int ret2 = bind(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr));
   // Se coloca el socket en modo listening
   int ret3 = listen(server_socket, 1);
   pthread_t thread_id;
-  pthread_create(&thread_id, NULL, Th_conectador, info_conectar);
+  informacion_thread->informacion_conexiones->id_thread = thread_id;
+  pthread_create(&thread_id, NULL, Th_conectador, informacion_thread);
+
   //pthread_join(thread_id, NULL);
-  return info_conectar;
+  return informacion_thread;
 }
 
 //Acá está la comunicacion directa a cada cliente
@@ -157,9 +169,12 @@ void *Conexion(Informacion_juego * informacion_thread)
       {
         printf("-> Todo listo\n");
         //Parte la partida
-        next_round(informacion_thread, informacion_thread->informacion_conexiones);
 
 
+        //seteamos la partida como lista
+        informacion_thread->ready = true;
+        //matamos el thread que estaba escuchando
+        pthread_cancel(informacion_thread->informacion_conexiones->id_thread);
       } else 
       { //Se reenvia pregunta al lider
         char * response = "Algun jugador no esta listo";

@@ -2,17 +2,17 @@
 
 size_t LEADER = 0;
 
-void next_round(Informacion_juego * informacion_juego, Informacion_conectar* sockets){
+void next_round(Informacion_juego * informacion_juego){
   Player *current_player;
-  printf("asddasads\n");
-  current_player = informacion_juego->jugadores[LEADER];
-  printf("asddasads1.2\n");
-  play_turn(current_player, informacion_juego->status, sockets);
-  printf("asddasads2\n");
-  for (size_t player = 0; player < PLAYER_NUMBER; player++)
+  Player **player_list = informacion_juego->jugadores;
+  current_player = player_list[LEADER];
+  play_turn(current_player, informacion_juego->status);
+  size_t player_count = get_player_count();
+  for (size_t player = 0; player < player_count; player++)
   {
     if (player != LEADER){
-      play_turn(current_player, informacion_juego->status, sockets);
+      current_player = player_list[player];
+      play_turn(current_player, informacion_juego->status);
     }
   }
 
@@ -65,7 +65,8 @@ void send_player_info(Player* player){
   /* Sends current player info to the client */
 }
 
-void play_turn(Player* player, GameStatus * status, Informacion_conectar* sockets){
+void play_turn(Player* player, Informacion_juego * informacion_juego){
+  GameStatus *status = informacion_juego->status;
   if (player->properties->health > 0){
     set_client_prompt(); // Notify client that is his turn
 
@@ -87,4 +88,26 @@ void play_turn(Player* player, GameStatus * status, Informacion_conectar* socket
     cast_spell(player->properties, target, player->current_spell);
     finish_turn:;
   }
+}
+
+void end_condition(GameStatus *status){
+  bool end_players = true;
+  Player **players = get_player_list();
+  for (size_t player = 0; player < get_player_count(); player++)
+  {
+    if (players[player]->properties->health > 0){
+      end_players = false;
+    }
+  }
+  bool end_monsters = false;
+  Monster **monsters = status->monsters;
+  /* TODO: Ask end condition for monsters
+  for (size_t monster = 0; monster < get_player_count(); monster++)
+  {
+    if (players[player]->properties->health > 0){
+      end_players = false;
+    }
+  }
+  */
+  return end_monsters | end_players;
 }

@@ -16,6 +16,10 @@ Player ** get_player_list(){
   return PLAYERS;
 }
 
+size_t get_player_count(){
+  return current_player;
+}
+
 Player * spawn_player(){
   Player *player = malloc(sizeof(Player));
   player->properties = spawn_entity();
