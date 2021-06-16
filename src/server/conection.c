@@ -123,6 +123,7 @@ void *Conexion(Informacion_juego * informacion_thread)
       player_list[my_attention]->name = client_message;
       char * response = "Se seteó su nombre en el servidor";
 
+      //TODO hacer fri
       server_send_message(socket, 4, response);
     }
     else if (msg_code == 3) //Recepción de la clase, se validó en cliente
@@ -183,6 +184,9 @@ void *Conexion(Informacion_juego * informacion_thread)
         server_send_message(socket, 5, response);
       }
     }
+
+
+
   }
   
   return NULL;
