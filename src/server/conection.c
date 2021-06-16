@@ -93,7 +93,7 @@ Informacion_juego * prepare_sockets_and_get_clients(char * IP, int port){
   // Se coloca el socket en modo listening
   int ret3 = listen(server_socket, 1);
   pthread_t thread_id;
-  informacion_thread->informacion_conexiones->id_thread = thread_id;
+  
   pthread_create(&thread_id, NULL, Th_conectador, informacion_thread);
 
   //pthread_join(thread_id, NULL);
@@ -123,7 +123,7 @@ void *Conexion(Informacion_juego * informacion_thread)
       player_list[my_attention]->properties->name = client_message;
       char * response = "Se seteó su nombre en el servidor";
 
-      //TODO hacer fri
+      //TODO: hacer fri
       server_send_message(socket, 4, response);
     }
     else if (msg_code == 3) //Recepción de la clase, se validó en cliente
@@ -176,7 +176,6 @@ void *Conexion(Informacion_juego * informacion_thread)
         //seteamos la partida como lista
         informacion_thread->ready = true;
         //matamos el thread que estaba escuchando
-        // pthread_cancel(informacion_thread->informacion_conexiones->id_thread);
         break;
       } else 
       { //Se reenvia pregunta al lider

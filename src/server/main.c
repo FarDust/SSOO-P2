@@ -17,10 +17,16 @@ int main(int argc, char *argv[]){
     sleep(1);
   }
   
-   printf("Empezando partida!\n");
+  for (int i = 0; i<get_player_count(); i++)
+  {
+    pthread_cancel(informacion_juego->informacion_conexiones->escuchadores[i]);
+  }
 
+  printf("Empezando partida!\n");
+  int c_rounds = 0;
   while (!end_condition(informacion_juego->status)){ // Mientras end-condition == false
     next_round(informacion_juego);
+    printf("[Server]: Se terminó la ronda %d\n", c_rounds);
   }
 
 

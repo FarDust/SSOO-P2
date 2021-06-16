@@ -35,12 +35,18 @@ Entity * spawn_entity(){
   entity->health = 0;
   entity->max_health = 0;
   entity->uuid = current_entity;
+  for (size_t i = 0; i < MAX_BUFFS; i++)
+  {
+    entity->buff[i] = 0;
+  }
+  
   ENTITIES[current_entity] = entity;
   current_entity += 1;
   return entity;
 }
 
 void kill_entity(Entity * entity){
+  free(entity->name);
   free(entity);
 }
 
@@ -70,36 +76,43 @@ void show_health(Entity * entity){
 }
 
 void show_buffs(Entity * entity){
-  if(entity->buff[AttackBuff] > 0){
-    printf("\033[0;33m");
-    printf("Doble ataque ⚔: %d turnos\n", entity->buff[AttackBuff]);
-    printf("\033[0m");
-  }
-  if(entity->buff[Sangrado] > 0){
-    printf("\033[0;31m"); 
-    printf("Sangrado 💉: %d acumulaciones\n", entity->buff[Sangrado]);
-    printf("\033[0m"); 
-  }
-  if(entity->buff[Toxic] > 0){
-    printf("\033[0;32m"); 
-    printf("Envenenado ☠: %d turnos\n", entity->buff[Toxic]);
-    printf("\033[0m"); 
-  }
-  if (entity->buff[Taunted] == true){
-    printf("Distraído: 😡\n");
-  }
-  if (entity->buff[Desmoralized] > 0){
-    printf("Desmoralizado: 😓\n");
+  if (entity != NULL && entity->buff != NULL){
+    if(entity->buff[AttackBuff] > 0){
+      printf("\033[0;33m");
+      printf("Doble ataque ⚔: %d turnos\n", entity->buff[AttackBuff]);
+      printf("\033[0m");
+    }
+    if(entity->buff[Sangrado] > 0){
+      printf("\033[0;31m"); 
+      printf("Sangrado 💉: %d acumulaciones\n", entity->buff[Sangrado]);
+      printf("\033[0m"); 
+    }
+    if(entity->buff[Toxic] > 0){
+      printf("\033[0;32m"); 
+      printf("Envenenado ☠: %d turnos\n", entity->buff[Toxic]);
+      printf("\033[0m"); 
+    }
+    if (entity->buff[Taunted] == true){
+      printf("Distraído: 😡\n");
+    }
+    if (entity->buff[Desmoralized] > 0){
+      printf("Desmoralizado: 😓\n");
+    }
   }
 }
 
 void show_status(Entity * entity, bool with_uuid){
   printf("=======================\n");
-  if (with_uuid){
-    printf("Entity UUID: %ld\n", entity->uuid);
+  if (entity != NULL){
+    if (with_uuid){
+      printf("Entity UUID: %ld\n", entity->uuid);
+    }
+    if (entity->name != NULL){
+      printf("Nombre: %s\n", entity->name);
+    }
+    show_health(entity);
+    printf("\n");
+    show_buffs(entity);
   }
-  show_health(entity);
-  printf("\n");
-  show_buffs(entity);
   printf("=======================\n");
 }
