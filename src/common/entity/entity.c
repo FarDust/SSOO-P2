@@ -31,6 +31,7 @@ Entity * set_entity(size_t entity, Entity * value){
 
 Entity * spawn_entity(){
   Entity *entity = malloc(sizeof(Entity));
+  entity->name = NULL;
   entity->health = 0;
   entity->max_health = 0;
   entity->uuid = current_entity;
