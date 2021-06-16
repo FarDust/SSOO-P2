@@ -25,7 +25,6 @@ Player * spawn_player(){
   player->properties = spawn_entity();
   player->current_spell = 0;
   player->spec = -1;
-  player->name = NULL;
   PLAYERS[current_player] = player;
   current_player += 1;
   return player;

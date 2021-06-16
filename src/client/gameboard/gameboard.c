@@ -18,7 +18,7 @@ size_t get_amount_of_objetives(int server_socket){
 Entity * get_target_info(int server_socket){
   /* TODO: Obtains the info of a target a creates an entity */
   bool server_response = false;
-  Entity *entity = spawn_entity();
+  Entity *entity;
   while (!server_response){
 
     int msg_code = client_receive_id(server_socket);
@@ -34,11 +34,24 @@ Entity * get_target_info(int server_socket){
       unsigned char *message = client_receive_payload(server_socket);
       size_t package_len = 4 + 1 + 4 + 4 + MAX_BUFFS;
       unsigned char entity_buffer[package_len];
-      entity->uuid = (message[0] << 24) | (message[1] << 16) | (message[2] << 8) | (message[3]);
-      entity->health = (message[9] << 24) | (message[10] << 16) | (message[11] << 8) | (message[12]);
+      memcpy(entity_buffer, message, package_len);
+      free(message);
+
+      if (entity_buffer[4] == 0x01){
+        Player *player = spawn_player();
+        size_t spec = (entity_buffer[5] << 24) | (entity_buffer[6] << 16) | (entity_buffer[7] << 8) | (entity_buffer[8]);
+        set_player_class(player, spec);
+        entity = player->properties;
+      }
+      else if (entity_buffer[4] == 0x02)
+      {
+      }
+
+      entity->uuid = (entity_buffer[0] << 24) | (entity_buffer[1] << 16) | (entity_buffer[2] << 8) | (entity_buffer[3]);
+      entity->health = (entity_buffer[9] << 24) | (entity_buffer[10] << 16) | (entity_buffer[11] << 8) | (entity_buffer[12]);
       for (size_t buff = 13; buff < 13 + MAX_BUFFS; buff++)
       {
-        entity->buff[buff] = message[buff];
+        entity->buff[buff] = entity_buffer[buff];
       }
     }
   }
@@ -138,6 +151,10 @@ void player_turn_watcher(int server_socket){
       break;
     } else if (msg_code == SKIP_FASE){
       break;
+    } else if (msg_code == STANDARD_MESSAGE) {
+      char * message = client_receive_payload(server_socket);
+      printf("-> El servidor dice: %s\n", message);
+      free(message);
     }
   }
 }

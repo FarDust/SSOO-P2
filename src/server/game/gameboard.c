@@ -38,8 +38,8 @@ void broadcast_player_turn(Player* player, Informacion_conectar *conexiones){
   for (size_t i = 0; i < get_player_count(); i++)
   {
     char message[64];
-    sprintf(message, "Turno del jugador %s/n", player->name);
-    server_send_message(conexiones->sockets_clients[i], 1, message);
+    sprintf(message, "Turno del jugador %s/n", player->properties->name);
+    server_send_message(conexiones->sockets_clients[i], STANDARD_MESSAGE, message);
   }
 }
 
@@ -95,7 +95,7 @@ server_send_bytes(socket, GET_ENTITIES, 4, buffer);
     {
       entity_buffer[buff] = entity->buff[buff] & 0xFF;
     }
-    server_send_bytes(socket, AVAILABLE_TARGET, package_len, entity_buffer);
+    server_send_bytes(player_socket, AVAILABLE_TARGET, package_len, entity_buffer);
   }
   
 }
@@ -184,9 +184,10 @@ void play_turn(Player* player, size_t player_index, Informacion_juego * informac
   GameStatus *status = informacion_juego->status;
   if (player->properties->health > 0){
     int player_socket = informacion_juego->informacion_conexiones->sockets_clients[player_index];
-    set_client_prompt(player_socket);
 
     broadcast_player_turn(player, informacion_juego->informacion_conexiones);
+
+    set_client_prompt(player_socket);
 
     send_targets_info(player, player_index, informacion_juego); // Send available target 
 
