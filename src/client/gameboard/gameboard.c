@@ -153,7 +153,7 @@ void player_turn_watcher(int server_socket){
       break;
     } else if (msg_code == STANDARD_MESSAGE) {
       char * message = client_receive_payload(server_socket);
-      printf("-> El servidor dice: %s\n", message);
+      printf("-> El servidor anuncia: %s\n", message);
       free(message);
     }
   }

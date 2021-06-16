@@ -67,7 +67,7 @@ void send_targets_info(Player *player, size_t player_index, Informacion_juego * 
   buffer[2] = (total_targets >> 8) & 0xFF;
   buffer[3] = total_targets & 0xFF;
 
-server_send_bytes(socket, GET_ENTITIES, 4, buffer);
+  server_send_bytes(player_socket, GET_ENTITIES, 4, buffer);
   for (size_t i = 0; i < get_player_count(); i++)
   {
     size_t package_len = 4 + 1 + 4 + 4 + MAX_BUFFS;
@@ -100,7 +100,7 @@ server_send_bytes(socket, GET_ENTITIES, 4, buffer);
   
 }
 
-Slot get_action_info(){
+Slot get_action_info(int socket){
   /* Espera a que el cliente responda o se desconecte->(Rendirse) */
   bool not_listo = true;
   int flee;
@@ -120,7 +120,7 @@ Slot get_action_info(){
   return flee;
 }
 
-size_t get_target_uuid(){
+size_t get_target_uuid(int socket){
   bool not_listo = true;
   size_t ret_uuid;
   while(not_listo){
