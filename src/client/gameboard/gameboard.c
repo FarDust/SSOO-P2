@@ -105,7 +105,7 @@ Player * get_own_data(int server_socket){
       }
       char * name = malloc(package_len - 13 + MAX_BUFFS);
       memcpy(name, &message[package_len - 13 + MAX_BUFFS], package_len - 13 + MAX_BUFFS);
-      player->name = name;
+      player->properties->name = name;
       
       free(message);
       not_listo = false;

@@ -145,7 +145,7 @@ void send_updated_info(){
 void send_player_info(Player* player, int socket){
   /* Sends current player info to the client */
   //uuid vida, nombre spec.
-  char * p_name = player->name;
+  char * p_name = player->properties->name;
   size_t package_len = 4 + 1 + 4 + 4 + MAX_BUFFS + strlen(p_name);
   unsigned char entity_buffer[package_len];
   Entity* entity = player->properties;
