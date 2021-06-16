@@ -10,7 +10,7 @@ typedef struct entity
   size_t uuid;
   size_t health;
   size_t max_health;
-  unsigned int buff[256];
+  unsigned int buff[16];
 } Entity;
 
 Entity *spawn_entity();

@@ -8,14 +8,40 @@
 #include <string.h>
 
 size_t get_amount_of_objetives(int server_socket){
-  /* TODO: get amount of valid objetives from server*/
-  return 5;
-}
+  size_t amount_of_objetives;
+  unsigned char *message = client_receive_payload(server_socket);
+  amount_of_objetives = (message[0] << 24) | (message[1] << 16) | (message[2] << 8) | (message[3]);
+  free(message);
+  return amount_of_objetives;
+  }
 
 Entity * get_target_info(int server_socket){
   /* TODO: Obtains the info of a target a creates an entity */
+  bool server_response = false;
   Entity *entity = spawn_entity();
-  /* Rellenar entity*/
+  while (!server_response){
+
+    int msg_code = client_receive_id(server_socket);
+    if (msg_code == AVAILABLE_TARGET){
+      /*
+      el UUID [4 bytes] 0 1 2 3
+      el tipos [1 byte] 4
+      su clase [4 bytes] 5 6 7 8
+      vida actual [4 bytes] 9 10 11 12
+      buffs [MAX_BUFFS bytes] 13>
+      */
+      server_response = true;
+      unsigned char *message = client_receive_payload(server_socket);
+      size_t package_len = 4 + 1 + 4 + 4 + MAX_BUFFS;
+      unsigned char entity_buffer[package_len];
+      entity->uuid = (message[0] << 24) | (message[1] << 16) | (message[2] << 8) | (message[3]);
+      entity->health = (message[9] << 24) | (message[10] << 16) | (message[11] << 8) | (message[12]);
+      for (size_t buff = 13; buff < 13 + MAX_BUFFS; buff++)
+      {
+        entity->buff[buff] = message[buff];
+      }
+    }
+  }
   return entity;
 }
 
@@ -76,6 +102,8 @@ void player_turn_watcher(int server_socket){
       get_targets_info(server_socket);
     } else if (msg_code == PLAYER_TURN) {
       select_targets(server_socket);
+      break;
+    } else if (msg_code == SKIP_FASE){
       break;
     }
   }

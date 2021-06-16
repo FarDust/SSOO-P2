@@ -33,3 +33,15 @@ void server_send_message(int client_socket, int pkg_id, char * message){
   // Se envía el paquete
   send(client_socket, msg, 2+payloadSize, 0);
 }
+
+void server_send_bytes(int client_socket, int pkg_id, size_t len, void * bytes){
+  int payloadSize = len + 1;
+  //printf("payload size: %d\n", payloadSize);
+  // Se arma el paquete
+  char msg[1+1+payloadSize];
+  msg[0] = pkg_id;
+  msg[1] = payloadSize;
+  memcpy(&msg[2], bytes, payloadSize);
+  // Se envía el paquete
+  send(client_socket, msg, 2+payloadSize, 0);
+}

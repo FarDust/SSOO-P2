@@ -84,6 +84,7 @@ Informacion_juego * prepare_sockets_and_get_clients(char * IP, int port){
   Informacion_juego* informacion_thread = malloc(sizeof(Informacion_juego));
   informacion_thread->jugadores = get_player_list();
   informacion_thread->status = malloc(sizeof(GameStatus));
+  informacion_thread->status->players = get_player_list();
 
   informacion_thread->informacion_conexiones = malloc(sizeof(Informacion_conectar));
   informacion_thread->informacion_conexiones->server_socket = server_socket;
@@ -105,7 +106,7 @@ void *Conexion(Informacion_juego * informacion_thread)
 
   int my_attention = id_threads;
   id_threads += 1;
-  Player **player_list = informacion_thread->jugadores;
+  Player **player_list = informacion_thread->status->players;
   Player *player = spawn_player();
   int socket;
 
@@ -174,7 +175,8 @@ void *Conexion(Informacion_juego * informacion_thread)
         //seteamos la partida como lista
         informacion_thread->ready = true;
         //matamos el thread que estaba escuchando
-        pthread_cancel(informacion_thread->informacion_conexiones->id_thread);
+        // pthread_cancel(informacion_thread->informacion_conexiones->id_thread);
+        break;
       } else 
       { //Se reenvia pregunta al lider
         char * response = "Algun jugador no esta listo";
