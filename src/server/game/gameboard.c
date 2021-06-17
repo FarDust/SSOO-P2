@@ -296,15 +296,36 @@ void play_turn(Player* player, size_t player_index, Informacion_juego * informac
     printf("%s", message);
 
     send_player_info(player, player_socket); // Send current player info
-
+    
     size_t objetive_uuid = get_target_uuid(player_socket); // obtain target uuid
+    if (player->properties->buff[Taunted])
+    {
+      objetive_uuid = player->properties->buff[TauntedBy];
+    }
+    Entity *target = get_entity_by(objetive_uuid);
+
+    if (player->properties->buff[Taunted])
+    {
+      char taunted_message[64];
+      sprintf(taunted_message, "%s está distraido y su objetivo es: %s\n", player->properties->name, target->properties->name);
+      for (size_t i; i < get_player_count(); i++)
+      {
+        server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], EVENT, taunted_message);
+      }
+    } else {
+      char not_taunted_message[64];
+      sprintf(not_taunted_message, "%s eligió como objetivo a: %s\n", player->properties->name, target->properties->name);
+      for (size_t i; i < get_player_count(); i++)
+      {
+         server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], EVENT, not_taunted_message);
+      }
+    }
+    
 
     Slot slot = get_action_info(player_socket);  // Get spell from client
     if (slot == flee){
       goto finish_turn;
     }
-
-    Entity *target = get_entity_by(objetive_uuid);
     
     select_spell(player, slot);
     char * result = cast_spell(player->properties, target, player->current_spell);
