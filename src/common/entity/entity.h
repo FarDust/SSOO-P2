@@ -7,6 +7,7 @@
 
 typedef struct entity
 {
+  char* name;
   size_t uuid;
   size_t health;
   size_t max_health;

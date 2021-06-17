@@ -120,9 +120,10 @@ void *Conexion(Informacion_juego * informacion_thread)
       char * client_message = server_receive_payload(socket);
       printf("-> El cliente %d seteó su nombre como: %s\n", my_attention+1, client_message);
 
-      player_list[my_attention]->name = client_message;
+      player_list[my_attention]->properties->name = client_message;
       char * response = "Se seteó su nombre en el servidor";
 
+      //TODO hacer fri
       server_send_message(socket, 4, response);
     }
     else if (msg_code == 3) //Recepción de la clase, se validó en cliente
@@ -152,7 +153,7 @@ void *Conexion(Informacion_juego * informacion_thread)
           printf("-> El cliente %d está conectado\n", i);
           //ver si hay nombre y clase elegido en esa misma posición
           //printf("pos %d; nombre %s; clase %s\n",i, player_list[i]->name, get_class_name(player_list[i]->spec));
-          if (player_list[i]->name == NULL){
+          if (player_list[i]->properties->name == NULL){
             listo = false;
             printf("-> El cliente %d no está listo\n", i);
             break;
@@ -183,6 +184,9 @@ void *Conexion(Informacion_juego * informacion_thread)
         server_send_message(socket, 5, response);
       }
     }
+
+
+
   }
   
   return NULL;

@@ -15,7 +15,6 @@ typedef enum
 
 typedef struct player
 {
-  char* name;
   Entity *properties;
   PlayerClass spec;
   Spell current_spell;

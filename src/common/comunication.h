@@ -12,5 +12,8 @@ typedef enum serverMessageCode
   GET_ENTITIES,
   AVAILABLE_TARGET,
   PLAYER_TURN,
-  SKIP_FASE
+  SKIP_FASE,
+  RECEIVE_UUID,
+  RECEIVE_SPELL,
+  GET_INFO,
 } ServerMessageCode;

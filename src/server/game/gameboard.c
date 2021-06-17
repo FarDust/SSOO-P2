@@ -1,5 +1,6 @@
 #include "gameboard.h"
 #include <stdbool.h>
+#include <string.h>
 
 size_t LEADER = 0;
 
@@ -56,8 +57,8 @@ void broadcast_player_turn(Player* player, Informacion_conectar *conexiones){
   for (size_t i = 0; i < get_player_count(); i++)
   {
     char message[64];
-    sprintf(message, "Turno del jugador %s/n", player->name);
-    server_send_message(conexiones->sockets_clients[i], 1, message);
+    sprintf(message, "Turno del jugador %s/n", player->properties->name);
+    server_send_message(conexiones->sockets_clients[i], STANDARD_MESSAGE, message);
   }
 }
 
@@ -85,7 +86,7 @@ void send_targets_info(Player *player, size_t player_index, Informacion_juego * 
   buffer[2] = (total_targets >> 8) & 0xFF;
   buffer[3] = total_targets & 0xFF;
 
-  server_send_bytes(socket, GET_ENTITIES, 4, buffer);
+  server_send_bytes(player_socket, GET_ENTITIES, 4, buffer);
   for (size_t i = 0; i < get_player_count(); i++)
   {
     size_t package_len = 4 + 1 + 4 + 4 + MAX_BUFFS;
@@ -113,19 +114,47 @@ void send_targets_info(Player *player, size_t player_index, Informacion_juego * 
     {
       entity_buffer[buff] = entity->buff[buff] & 0xFF;
     }
-    server_send_bytes(socket, AVAILABLE_TARGET, package_len, entity_buffer);
+    server_send_bytes(player_socket, AVAILABLE_TARGET, package_len, entity_buffer);
   }
   
 }
 
-Slot get_action_info(){
+Slot get_action_info(int socket){
   /* Espera a que el cliente responda o se desconecte->(Rendirse) */
+  bool not_listo = true;
+  int flee;
+  while(not_listo){
+   int msg_code = server_receive_id(socket);
+    
+    if (msg_code == RECEIVE_SPELL) //Recepción del nombre, son todos validos
+    {
+      char * message = server_receive_payload(socket);
+      
+      flee = atoi(message);
+      not_listo = false;
+    }
+  }
+
+
   return flee;
 }
 
-size_t get_target_uuid(){
+size_t get_target_uuid(int socket){
+  bool not_listo = true;
+  size_t ret_uuid;
+  while(not_listo){
+   int msg_code = server_receive_id(socket);
+    if (msg_code == RECEIVE_UUID) //Recepción del nombre, son todos validos
+    {
+      char * uuid = server_receive_payload(socket);
+      ret_uuid = atoi(uuid);
+      not_listo = false;
+      
+    }
+  }
   /* Espera a que el cliente responda con un Spell o se desconecte->(Rendirse) */
-  return 0;
+  
+  return ret_uuid;
 }
 
 void send_updated_info(){
@@ -134,15 +163,50 @@ void send_updated_info(){
 
 void send_player_info(Player* player, int socket){
   /* Sends current player info to the client */
+  //uuid vida, nombre spec.
+  char * p_name = player->properties->name;
+  size_t package_len = 4 + 1 + 4 + 4 + MAX_BUFFS + strlen(p_name);
+  unsigned char entity_buffer[package_len];
+  Entity* entity = player->properties;
+
+  entity_buffer[0] = (entity->uuid >> 24) & 0xFF;
+  entity_buffer[1] = (entity->uuid >> 16) & 0xFF;
+  entity_buffer[2] = (entity->uuid >> 8) & 0xFF;
+  entity_buffer[3] = entity->uuid & 0xFF;
+
+  entity_buffer[4] = 0x01; // PLAYER
+
+  entity_buffer[5] = (player->spec >> 24) & 0xFF;
+  entity_buffer[6] = (player->spec >> 16) & 0xFF;
+  entity_buffer[7] = (player->spec >> 8) & 0xFF;
+  entity_buffer[8] = player->spec & 0xFF;
+
+  entity_buffer[9] = (entity->health >> 24) & 0xFF;
+  entity_buffer[10] = (entity->health >> 16) & 0xFF;
+  entity_buffer[11] = (entity->health >> 8) & 0xFF;
+  entity_buffer[12] = entity->health & 0xFF;
+
+  for (size_t buff = 13; buff < 13 + MAX_BUFFS; buff++)
+    {
+      entity_buffer[buff] = entity->buff[buff] & 0xFF;
+    }
+
+  entity_buffer[13 + MAX_BUFFS];
+
+  memcpy(&entity_buffer[13 + MAX_BUFFS], p_name, strlen(p_name));
+  
+  server_send_bytes(socket, GET_INFO, package_len, entity_buffer);
+
 }
 
 void play_turn(Player* player, size_t player_index, Informacion_juego * informacion_juego){
   GameStatus *status = informacion_juego->status;
   if (player->properties->health > 0){
     int player_socket = informacion_juego->informacion_conexiones->sockets_clients[player_index];
-    set_client_prompt(player_socket);
 
     broadcast_player_turn(player, informacion_juego->informacion_conexiones);
+
+    set_client_prompt(player_socket);
 
     send_targets_info(player, player_index, informacion_juego); // Send available target 
 
