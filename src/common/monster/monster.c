@@ -84,40 +84,52 @@ void kill_monster(Monster* monster){
   free(monster);
 }
 
-void cast_monster_spell(Monster *monster, Player** players, int n_players, int rounds)
+char* cast_monster_spell(Monster *monster, Player** players, int n_players, int rounds)
 {
   time_t t;
   srand((unsigned) time(&t));
-  Entity* targets[n_players];
+  
+  int posible_target_count = 0;
   for (size_t i = 0; i < n_players; i++)
   {
-    targets[i] = players[i]->properties;
+    if (players[i]->properties->health > 0){
+      posible_target_count += 1;
+    }
   }
-  int target = rand() % n_players;
+  Entity* targets[posible_target_count];
+  posible_target_count = 0;
+  for (size_t i = 0; i < n_players; i++)
+  {
+    if (players[i]->properties->health > 0)
+    {  
+      targets[posible_target_count] = players[i]->properties;
+      posible_target_count += 1;
+    }
+  }
+  int target;
+  if (monster->properties->buff[Taunted]){
+    target = monster->properties->buff[TauntedBy];
+  }else{
+    target = rand() % posible_target_count;
+  }
+
   printf("Entity %ld cast %s in Entity %ld\n", monster->properties->uuid, get_spell_name(monster->current_spell), targets[target]->uuid);
   switch (monster->current_spell)
   {
   case Salto:
-    salto(monster->properties, targets[target]);
-    break;
+    return salto(monster->properties, targets[target]);
   case EspinaVenenosa:
-    espina_venenosa(targets[target]);
-    break;
+    return espina_venenosa(monster->properties, targets[target]);
   case Ruzgar:
-    ruzgar(targets[target]);
-    break;
+    return ruzgar(monster->properties, targets[target]);
   case Coletazo:
-    coletazo(targets, n_players);
-    break;
+    return coletazo(monster->properties, targets, posible_target_count);
   case CasoDeCopia:
-    caso_de_copia(monster->properties, players[target]->spec, players[rand() % n_players],targets[target]);
-    break;
+    return caso_de_copia(monster->properties, players[target]->spec, players[rand() % posible_target_count],targets[target]);
   case Reprobatron:
-    reprobatron(targets[target]);
-    break;
+    return reprobatron(monster->properties, targets[target]);
   case SudoRmRf:
-    sudoRmRf(rounds, targets, n_players);
-    break;
+    return sudoRmRf(monster->properties, rounds, targets, posible_target_count);
 
   default:
     break;

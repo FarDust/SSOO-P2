@@ -47,19 +47,21 @@ typedef enum
 } Slot;
 
 char *get_spell_name(Spell spell);
-int do_dmg(Entity* target, int dmg);
+char* do_dmg(Entity* target, int dmg);
 bool is_harm_spell(Spell spell);
+char* damage(Entity *target, int amount);
+char* heal(Entity *target, int amount);
 
-void estocada(Entity *caster, Entity *target);
+char* estocada(Entity *caster, Entity *target);
 void sangrado(Entity *target);
-void corte_cruzado(Entity *caster, Entity *target);
-void distraer(Entity *caster, Entity *target);
+char* corte_cruzado(Entity *caster, Entity *target);
+char* distraer(Entity *caster, Entity *target);
 
-void curar(Entity *caster, Entity *target);
+char* curar(Entity *caster, Entity *target);
 size_t destello_regenerador(Entity *caster, Entity *target);
-void destello_regenerador_side_effect(Entity *caster, Entity *target, size_t amount);
-void descarga_vital(Entity *caster, Entity *target);
+char* destello_regenerador_side_effect(Entity *caster, Entity *target, size_t amount);
+char* descarga_vital(Entity *caster, Entity *target);
 
-void inyeccion_sql(Entity *caster, Entity *target);
-void ataque_ddos(Entity *caster, Entity *target);
-void fuerza_bruta(Entity *caster, Entity *target);
+char* inyeccion_sql(Entity *caster, Entity *target);
+char* ataque_ddos(Entity *caster, Entity *target);
+char* fuerza_bruta(Entity *caster, Entity *target);

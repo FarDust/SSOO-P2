@@ -2,15 +2,20 @@
 #include "great_jagruz_spells.h"
 #include "../spell.h"
 
-void ruzgar(Entity* target)
-{
-	do_dmg(target, 1000);
+char* ruzgar(Entity* monster, Entity* target)
+{	
+	char msg[100];
+	sprintf(msg, "Great Jagruz ha usado ruzgar\n%s", do_dmg(target, apply_buffs(monster, 1000)));
+  return msg;
 }
 
-void coletazo(Entity** targets, int targets_n)
+char* coletazo(Entity* monster, Entity** targets, int targets_n)
 {
+  char msg[200];
+  sprintf(msg, "Great Jagruz ha usado ruzgar\n");
 	for (int i = 0; i < targets_n; ++i)
 	{
-		do_dmg(targets[i], 500);
+		sprintf(msg,"%s%s", msg, do_dmg(targets[i], apply_buffs(monster, 500)));
 	}
+  return msg;
 }

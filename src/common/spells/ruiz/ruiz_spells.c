@@ -6,28 +6,36 @@
 #include <stdio.h>
 #include <time.h>
 
-void caso_de_copia(Entity* monster, int class_type, Player* to_copy, Entity* target)
+char* caso_de_copia(Entity* monster, int class_type, Player* to_copy, Entity* target)
 {
   time_t t;
   srand((unsigned) time(&t));
   monster->buff[CasoDeCopiaStatus] = 1;
   Slot slot = rand() % 3; // el slot del spell a copiar
   Spell spell = get_spell_slot(to_copy->spec, slot);
-  printf("Ha copiado la habilidad: %s", get_spell_name(spell));
-  cast_spell(monster, target, spell);
+  char msg[200];
+  printf("Ha copiado la habilidad: %s\n", get_spell_name(spell));
+  sprintf(msg, "Ruiz ha copiado la habilidad: %s\n%s",get_spell_name(spell), cast_spell(monster, target, spell));
   monster->buff[CasoDeCopiaStatus] = 0;
+  return msg;
 }
 
-void reprobatron(Entity* target)
+char* reprobatron(Entity* monster, Entity* target)
 {
-	target->buff[Desmoralized] = 1;
+	target->buff[Desmoralized] = 2;
+  char msg[100];
+  sprintf(msg, "Ruiz ha desmoralizado a %s\n", target->name);
+  return msg;
 }
 
-void sudoRmRf(int rounds, Entity** targets, int targets_n)
+char* sudoRmRf(Entity* monster, int rounds, Entity** targets, int targets_n)
 {
+  char msg[200];
+  sprintf(msg,"Ruiz usó sudo rm-rf\n");
 	for (int i = 0; i < targets_n; ++i)
 	{
-		do_dmg(targets[i], 100*rounds);
+		sprintf(msg, "%s%s", msg, do_dmg(targets[i], apply_buffs(monster, 100*rounds));
 	}
+  return msg;
 }
 
