@@ -181,19 +181,27 @@ void select_targets(int server_socket){
       goto free_temp_game;
     }
   }
-  show_spells(player); // TODO: show flee slot and manage exceptions
+  show_spells(player);
+  printf("Otro - Abandonar la partida\n");
 
   printf("Selecciona un hechizo: ");
   char *input = get_input();
-  Slot slot = atoi(input);
-  free(input);
 
+  Slot slot = atoi(input);
+
+  if ( (strcmp(input, "0") != 0) & (slot == 0) ){
+    free(input);
+    printf("Haz abandonado la partida, seras un espectador!\n");
+    send_spell(server_socket, flee);
+    goto free_temp_game;
+  }
+  free(input);
   send_spell(server_socket, slot);
 
   // Cast fake spell in client side to prompt results
   char * result = cast_spell(player->properties, entity, get_spell_slot(player->spec, slot));
-  free_temp_game:;
   free(result);
+  free_temp_game:;
   reset_entities();
   reset_players();
   reset_monster();
