@@ -54,7 +54,7 @@ void next_round(Informacion_juego * informacion_juego){
 
   char message[64];
   sprintf(message, "Termina ronda %ld\n", informacion_juego->status->round);
-  for (size_t i; i<player_count; i++)
+  for (size_t i = 0; i<player_count; i++)
   {
     server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], STANDARD_MESSAGE, message);
   }
@@ -298,27 +298,31 @@ void play_turn(Player* player, size_t player_index, Informacion_juego * informac
     send_player_info(player, player_socket); // Send current player info
     
     size_t objetive_uuid = get_target_uuid(player_socket); // obtain target uuid
-    if (player->properties->buff[Taunted])
+    if (player->properties->buff[Taunted] == true)
     {
       objetive_uuid = player->properties->buff[TauntedBy];
     }
     Entity *target = get_entity_by(objetive_uuid);
 
-    if (player->properties->buff[Taunted])
+    size_t number_of_players = get_player_count();
+    if (player->properties->buff[Taunted] == true)
     {
-      char taunted_message[64];
+      char taunted_message[128];
       sprintf(taunted_message, "%s está distraido y su objetivo es: %s\n", player->properties->name, target->name);
-      for (size_t i; i < get_player_count(); i++)
+      for (size_t i=0; i < number_of_players; i++)
       {
         server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], EVENT, taunted_message);
       }
+      printf("[Server]: %s", taunted_message);
     } else {
-      char not_taunted_message[64];
-      sprintf(not_taunted_message, "%s eligió como objetivo a: %s\n", player->properties->name, target->name);
-      for (size_t i; i < get_player_count(); i++)
+      char not_taunted_message[128];
+      sprintf(not_taunted_message, " %s eligió como objetivo a: %s\n", player->properties->name, target->name);
+      for (size_t i=0; i < number_of_players; i++)
       {
-         server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], EVENT, not_taunted_message);
+        server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], EVENT, not_taunted_message);
       }
+      printf("Cantidad de jugadores: %ld\n", get_player_count());
+      printf("[Server]: %s", not_taunted_message);
     }
     
 
@@ -334,7 +338,7 @@ void play_turn(Player* player, size_t player_index, Informacion_juego * informac
     finish_turn:;
     char end_message[64];
     sprintf(end_message, "[Server]: Termino el turno del jugador %s\n", player->properties->name);
-    for (size_t i; i < get_player_count(); i++)
+    for (size_t i=0; i < get_player_count(); i++)
     {
       server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], END_TURN, message);
     }
