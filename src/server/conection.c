@@ -108,6 +108,7 @@ void *Conexion(Informacion_juego * informacion_thread)
   id_threads += 1;
   Player **player_list = informacion_thread->status->players;
   Player *player = spawn_player();
+  Monster *monster;
   int socket;
 
   while (1)
@@ -175,9 +176,32 @@ void *Conexion(Informacion_juego * informacion_thread)
 
 
         //seteamos la partida como lista
-        informacion_thread->ready = true;
         //matamos el thread que estaba escuchando
+        server_send_message(socket, SELECT_MONSTER, "Selecciona un monstruo:\n0.- Great JagRuz\n1.- Ruzalos\n2.- Ruiz\n");
+        bool seguir = true;
+        while (seguir)
+        {
+          msg_code = server_receive_id(socket);
+          if (msg_code==SELECT_MONSTER){
+            char* client_monster_message = server_receive_payload(socket);
+            monster = spawn_monster(atoi(client_message));
+            informacion_thread->status->monster = monster;
+            seguir = false;
+            free(client_monster_message);
+          } else if (msg_code == 0)
+          {
+            break;
+          } else 
+          {
+            char* client_monster_message = server_receive_payload(socket);
+            printf("[Client]: Mensaje sin sentido recibido\nmsg_code: %d\nmessage: %s\n", msg_code, client_monster_message);
+            free(client_monster_message);
+            break;
+          }
+        }
+        informacion_thread->ready = true;
         break;
+        
       } else 
       { //Se reenvia pregunta al lider
         char * response = "Algun jugador no esta listo";
