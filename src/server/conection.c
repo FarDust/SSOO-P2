@@ -96,7 +96,7 @@ Informacion_juego * prepare_sockets_and_get_clients(char * IP, int port){
   
   pthread_create(&thread_id, NULL, Th_conectador, informacion_thread);
 
-  //pthread_join(thread_id, NULL);
+  informacion_thread->informacion_conexiones->main_connector = thread_id;
   return informacion_thread;
 }
 
@@ -122,8 +122,6 @@ void *Conexion(Informacion_juego * informacion_thread)
 
       player_list[my_attention]->properties->name = client_message;
       char * response = "Se seteó su nombre en el servidor";
-
-      //TODO: hacer fri
       server_send_message(socket, 4, response);
     }
     else if (msg_code == 3) //Recepción de la clase, se validó en cliente
@@ -132,6 +130,7 @@ void *Conexion(Informacion_juego * informacion_thread)
       printf("-> El cliente %d eligio la clase: %s\n", my_attention+1, client_message);
 
       set_player_class(player_list[my_attention], atoi(client_message));
+      free(client_message);
       char * response = "Se seteó su clase en el servidor";
 
       if (my_attention == 0) // Si es que es lider, le mandamos una respuesta
@@ -146,7 +145,7 @@ void *Conexion(Informacion_juego * informacion_thread)
       char * client_message = server_receive_payload(socket);
       printf("-> El lider quiere partir la partida, se revisa si todos han elegido nombre\n");
       bool listo = true;
-      char * response = revert(client_message);
+
       for (int i = 0;i<PLAYER_NUMBER;i++){
         
         if(informacion_thread->informacion_conexiones->conexiones[i]){
@@ -166,6 +165,8 @@ void *Conexion(Informacion_juego * informacion_thread)
           
         }
       }
+
+      free(client_message);
 
       if (listo)
       {

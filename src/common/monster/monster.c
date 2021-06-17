@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 Monster* MONSTER;
 
@@ -11,25 +12,28 @@ Monster * spawn_monster(MonsterClass spec){
   monster->properties = spawn_entity();
   monster->name = spec;
   monster->current_spell = 0;
-  
+
+  char *name = calloc(64, sizeof(char));
+
   switch (monster->name)
   {
   case GreatJagRuz:
+    strcpy(name, "Great JagRuz");
     monster->properties->health = 10000;
-    monster->properties->name = "Great JagRuz";
     break;
   case Ruzalos:
+    strcpy(name, "Ruzalos");
     monster->properties->health = 20000;
-    monster->properties->name = "Ruzalos";
     break;
   case Ruiz:
+    strcpy(name, "Ruiz");
     monster->properties->health = 25000;
-    monster->properties->name = "Ruiz";
     break;
 
   default:
     break;
   }
+  monster->properties->name = name;
   monster->properties->max_health = monster->properties->health;
   MONSTER = monster;
   return monster;
@@ -83,7 +87,7 @@ void select_monster_spell(Monster* monster)
 }
 
 void kill_monster(Monster* monster){
-  free(monster->properties);
+  kill_entity(monster->properties);
   free(monster);
 }
 
@@ -123,37 +127,37 @@ const char* cast_monster_spell(Monster *monster, Player** players, int n_players
   switch (monster->current_spell)
   {
   case Salto:
-    response = salto(monster->properties, targets[target]);
+    response = (char *)salto(monster->properties, targets[target]);
     write_message(msg, response);
     free(response);
     break;
   case EspinaVenenosa:
-    response = espina_venenosa(monster->properties, targets[target]);
+    response = (char *)espina_venenosa(monster->properties, targets[target]);
     write_message(msg, response);
     free(response);
     break;
   case Ruzgar:
-    response = ruzgar(monster->properties, targets[target]);
+    response = (char *)ruzgar(monster->properties, targets[target]);
     write_message(msg, response);
     free(response);
     break;
   case Coletazo:
-    response = coletazo(monster->properties, targets, posible_target_count);
+    response = (char *)coletazo(monster->properties, targets, posible_target_count);
     write_message(msg, response);
     free(response);
     break;
   case CasoDeCopia:
-    response = caso_de_copia(monster->properties, players[target]->spec, players[rand() % posible_target_count],targets[target]);
+    response = (char *)caso_de_copia(monster->properties, players[target]->spec, players[rand() % posible_target_count],targets[target]);
     write_message(msg, response);
     free(response);
     break;
   case Reprobatron:
-    response = reprobatron(monster->properties, targets[target]);
+    response = (char *)reprobatron(monster->properties, targets[target]);
     write_message(msg, response);
     free(response);
     break;
   case SudoRmRf:
-    response = sudoRmRf(monster->properties, rounds, targets, posible_target_count);
+    response = (char *)sudoRmRf(monster->properties, rounds, targets, posible_target_count);
     write_message(msg, response);
     free(response);
     break;
@@ -164,3 +168,14 @@ const char* cast_monster_spell(Monster *monster, Player** players, int n_players
   return msg;
 }
 
+MonsterClass get_random_monster(){
+
+  time_t t;
+  srand((unsigned) time(&t));
+
+  return rand() % MAX_MONSTER_CLASSES;
+}
+
+void reset_monster(){
+  free(MONSTER);
+}

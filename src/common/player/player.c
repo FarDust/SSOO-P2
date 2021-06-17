@@ -108,19 +108,18 @@ void show_spells(Player *player){
 }
 
 char* cast_spell(Entity *caster, Entity * target, Spell spell){
-  // printf("Entity %ld cast %s in Entity %ld\n", caster->uuid, get_spell_name(spell), target->uuid);
+  printf("%s cast %s in %s\n", caster->name, get_spell_name(spell), target->name);
   char* str;
   switch (spell)
   {
   case Estocada:
-    return estocada(caster, target);
+    return (char *)estocada(caster, target);
   case CorteCruzado:
-    return corte_cruzado(caster, target);
+    return (char *)corte_cruzado(caster, target);
   case Distraer:
-    distraer(caster, target);
-    break;
+    return (char *)distraer(caster, target);
   case Curar:
-    return curar(caster, target);
+    return (char *)curar(caster, target);
   case DestelloRegenerador:;
     size_t damage_dealt = destello_regenerador(caster, target);
 
@@ -129,7 +128,7 @@ char* cast_spell(Entity *caster, Entity * target, Spell spell){
 
     size_t selected_player = rand() % current_player;
     Player * new_target = PLAYERS[selected_player];
-    char* dr_msg = destello_regenerador_side_effect(caster, new_target->properties, (size_t)round((double)damage_dealt / 2));
+    char* dr_msg = (char *)destello_regenerador_side_effect(caster, new_target->properties, (size_t)round((double)damage_dealt / 2));
     char msg[200];
     str = (char *)calloc(200, 1);
     sprintf(msg, "%s ha hecho %li de daño a %s\n", dr_msg, damage_dealt, target->name);
@@ -137,15 +136,16 @@ char* cast_spell(Entity *caster, Entity * target, Spell spell){
     write_message(str, msg);
     return str;
   case DescargaVital:
-    return descarga_vital(caster, target);
+    return (char *)descarga_vital(caster, target);
   case InyeccionSQL:
-    return inyeccion_sql(caster, target);
+    return (char *)inyeccion_sql(caster, target);
   case AtaqueDDOS:
-    return ataque_ddos(caster, target);
+    return (char *)ataque_ddos(caster, target);
   case FuerzaBruta:
-    return fuerza_bruta(caster, target);
+    return (char *)fuerza_bruta(caster, target);
   
   default:
-    break;
+    return "\n";
   }
+  return "\n";
 }

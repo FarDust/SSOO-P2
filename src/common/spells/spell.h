@@ -54,7 +54,7 @@ const char* damage(Entity *target, int amount);
 const char* heal(Entity *target, int amount);
 
 const char* estocada(Entity *caster, Entity *target);
-void sangrado(Entity *target);
+const char *sangrado(Entity *target);
 const char* corte_cruzado(Entity *caster, Entity *target);
 const char* distraer(Entity *caster, Entity *target);
 

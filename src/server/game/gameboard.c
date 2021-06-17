@@ -21,17 +21,19 @@ void next_round(Informacion_juego * informacion_juego){
 
   Monster* monster =  informacion_juego->status->monster;
   select_monster_spell(monster);
-  cast_monster_spell(monster, player_list, get_player_count(), informacion_juego->status->round);
-  
+  char * server_msg = (char *)cast_monster_spell(monster, player_list, get_player_count(), informacion_juego->status->round);
+  for (size_t i = 0; i < get_player_count(); i++)
+  {
+    server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], STANDARD_MESSAGE, server_msg);
+  }
+  free(server_msg);
 
   for (size_t entity = 0; entity < get_entities_number(); entity++)
   {
     Entity* rentity = get_entity(entity);
     if (rentity->buff[Sangrado] > 0){
-      sangrado(rentity);
-    }
-    if (rentity->buff[Desmoralized] > 0){
-      rentity->buff[Desmoralized] -= 1;
+      char * result = (char *)sangrado(rentity);
+      free(result);
     }
     if (rentity->buff[Desmoralized] > 0){
       rentity->buff[Desmoralized] -= 1;
@@ -41,7 +43,8 @@ void next_round(Informacion_juego * informacion_juego){
     }
     if (rentity->buff[Toxic] > 0){
       rentity->buff[Toxic] -= 1;
-      do_dmg(rentity, 400);
+      char * result = (char *)do_dmg(rentity, 400);
+      free(result);
       //send message toxic
     }
     if (rentity->buff[AttackBuff] > 0){
@@ -88,13 +91,18 @@ void send_targets_info(Player *player, size_t player_index, Informacion_juego * 
   int player_socket = informacion_juego->informacion_conexiones->sockets_clients[player_index];
 
   // Objetivos disponibles PLAYERS + MONSTERS
-  size_t total_targets = 0; // + monsters_count()
+  size_t total_targets = 0;
   for (size_t i = 0; i < get_player_count(); i++){
     Player *player = informacion_juego->status->players[i];
     if ( player->properties->health > 0){
       total_targets += 1;
     }
   }
+
+  if (informacion_juego->status->monster->properties->health > 0){
+    total_targets += 1;
+  }
+  
   unsigned char buffer[4];
   buffer[0] = (total_targets >> 24) & 0xFF;
   buffer[1] = (total_targets >> 16) & 0xFF;
@@ -139,11 +147,48 @@ void send_targets_info(Player *player, size_t player_index, Informacion_juego * 
 
       memcpy(&entity_buffer[13 + MAX_BUFFS + 1], p_name, strlen(p_name));
 
-      server_send_bytes(player_socket, AVAILABLE_TARGET, package_len, entity_buffer);
+      server_send_bytes(player_socket, AVAILABLE_TARGET, package_len + strlen(p_name), entity_buffer);
       printf("[Server]: enviado objetivo %ld\n", entity->uuid);
     }
   }
-  
+
+  size_t package_len = 4 + 1 + 4 + 4 + MAX_BUFFS;
+  Monster *monster = informacion_juego->status->monster;
+  Entity* entity = informacion_juego->status->monster->properties;
+  if (monster->properties->health > 0){
+
+    char * p_name = monster->properties->name;
+    unsigned char entity_buffer[package_len + strlen(p_name)];
+
+    entity_buffer[0] = (entity->uuid >> 24) & 0xFF;
+    entity_buffer[1] = (entity->uuid >> 16) & 0xFF;
+    entity_buffer[2] = (entity->uuid >> 8) & 0xFF;
+    entity_buffer[3] = entity->uuid & 0xFF;
+
+    entity_buffer[4] = 0x02; // Monster
+
+    entity_buffer[5] = (monster->name >> 24) & 0xFF;
+    entity_buffer[6] = (monster->name >> 16) & 0xFF;
+    entity_buffer[7] = (monster->name >> 8) & 0xFF;
+    entity_buffer[8] = monster->name & 0xFF;
+
+    entity_buffer[9] = (entity->health >> 24) & 0xFF;
+    entity_buffer[10] = (entity->health >> 16) & 0xFF;
+    entity_buffer[11] = (entity->health >> 8) & 0xFF;
+    entity_buffer[12] = entity->health & 0xFF;
+
+    for (size_t buff = 13; buff < package_len; buff++)
+    {
+      entity_buffer[buff] = entity->buff[buff-13] & 0xFF;
+    }
+
+    entity_buffer[13 + MAX_BUFFS] = strlen(p_name) & 0xFF;
+
+    memcpy(&entity_buffer[13 + MAX_BUFFS + 1], p_name, strlen(p_name));
+
+    server_send_bytes(player_socket, AVAILABLE_TARGET, package_len + strlen(p_name), entity_buffer);
+    printf("[Server]: enviado objetivo %ld\n", entity->uuid);
+  }
 }
 
 Slot get_action_info(int socket){
@@ -155,10 +200,10 @@ Slot get_action_info(int socket){
     
     if (msg_code == RECEIVE_SPELL) 
     {
-      unsigned char * message = server_receive_payload(socket);
+      unsigned char * message = (unsigned char *)server_receive_payload(socket);
       slot = (message[0] << 24) | (message[1] << 16) | (message[2] << 8) | (message[3]);
       not_listo = false;
-      
+      free(message);
     } else if (msg_code != 0) {
       char * message = server_receive_payload(socket);
       printf("-> Paquete sin sentido recepcionado con \nmsg_code: %d\n message: %s\n",msg_code, message);
@@ -178,10 +223,10 @@ size_t get_target_uuid(int socket){
     if (msg_code == RECEIVE_UUID) //Recepción del nombre, son todos validos
     {
       
-      unsigned char * uuid = server_receive_payload(socket);
+      unsigned char * uuid = (unsigned char *)server_receive_payload(socket);
       ret_uuid = (uuid[0] << 24) | (uuid[1] << 16) | (uuid[2] << 8) | (uuid[3]);
       not_listo = false;
-      
+      free(uuid);
     } else if (msg_code != 0) {
       char * message = server_receive_payload(socket);
       printf("-> Paquete sin sentido recepcionado con \nmsg_code: %d\n message: %s\n",msg_code, message);
@@ -237,7 +282,6 @@ void send_player_info(Player* player, int socket){
 }
 
 void play_turn(Player* player, size_t player_index, Informacion_juego * informacion_juego){
-  GameStatus *status = informacion_juego->status;
   if (player->properties->health > 0){
     int player_socket = informacion_juego->informacion_conexiones->sockets_clients[player_index];
 
@@ -263,8 +307,16 @@ void play_turn(Player* player, size_t player_index, Informacion_juego * informac
     Entity *target = get_entity_by(objetive_uuid);
     
     select_spell(player, slot);
-    cast_spell(player->properties, target, player->current_spell);
+    char * result = cast_spell(player->properties, target, player->current_spell);
+    // TODO: send feedback to all players of actions
+    free(result);
     finish_turn:;
+    char end_message[64];
+    sprintf(end_message, "[Server]: Termino el turno del jugador %s\n", player->properties->name);
+    for (size_t i; i < get_player_count(); i++)
+    {
+      server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], END_TURN, message);
+    }
   }
 }
 
@@ -282,13 +334,5 @@ bool end_condition(GameStatus *status){
   if (monster->properties->health == 0){
     end_monsters = true;
   }
-  /* TODO: Ask end condition for monsters
-  for (size_t monster = 0; monster < get_player_count(); monster++)
-  {
-    if (players[player]->properties->health > 0){
-      end_players = false;
-    }
-  }
-  */
   return end_monsters | end_players;
 }

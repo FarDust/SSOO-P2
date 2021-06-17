@@ -16,4 +16,6 @@ typedef enum serverMessageCode
   RECEIVE_UUID,
   RECEIVE_SPELL,
   GET_INFO,
+  END_TURN,
+  END_CONENCTION,
 } ServerMessageCode;

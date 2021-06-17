@@ -27,7 +27,8 @@
     "spec_spells.h": "c",
     "comunication.h": "c",
     "utility.h": "c",
-    "structs_gameboard.h": "c"
+    "structs_gameboard.h": "c",
+    "gameboard.h": "c"
   },
   "python.pythonPath": "/usr/bin/python3",
   "cSpell.words": [

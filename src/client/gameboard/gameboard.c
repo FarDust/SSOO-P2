@@ -45,6 +45,10 @@ Entity * get_target_info(int server_socket){
       }
       else if (entity_buffer[4] == 0x02)
       {
+        size_t spec = (entity_buffer[5] << 24) | (entity_buffer[6] << 16) | (entity_buffer[7] << 8) | (entity_buffer[8]);
+        Monster *monster = spawn_monster(spec);
+        entity = monster->properties;
+        free(entity->name);
       }
 
       entity->uuid = (entity_buffer[0] << 24) | (entity_buffer[1] << 16) | (entity_buffer[2] << 8) | (entity_buffer[3]);
@@ -78,7 +82,10 @@ void get_targets_info(int server_socket){
 
 size_t get_player_option(){
   printf("Selecciona un objetivo de la lista anterior:");
-  return atoi(get_input());
+  char *input = get_input();
+  size_t result = atoi(input);
+  free(input);
+  return result;
 }
 
 void send_target(int server_socket, size_t uuid){
@@ -155,14 +162,19 @@ void select_targets(int server_socket){
   send_target(server_socket, uuid);
   show_spells(player); // TODO: show flee slot and manage exceptions
 
-  printf("Selecciona un hechizo\n");
-  Slot slot = atoi(get_input()); /* TODO: Obtain slot from player */
+  printf("Selecciona un hechizo: ");
+  char *input = get_input();
+  Slot slot = atoi(input);
+  free(input);
+
   send_spell(server_socket, slot);
 
   // Cast fake spell in client side to prompt results
-  cast_spell(player->properties, entity, get_spell_slot(player->spec, slot));
+  char * result = cast_spell(player->properties, entity, get_spell_slot(player->spec, slot));
+  free(result);
   reset_entities();
   reset_players();
+  reset_monster();
 }
 
 void player_turn_watcher(int server_socket){
@@ -172,7 +184,7 @@ void player_turn_watcher(int server_socket){
     if (msg_code == GET_ENTITIES){
       get_targets_info(server_socket);
     } else if (msg_code == PLAYER_TURN) {
-      char * message = client_receive_payload(server_socket);
+      char * message = (char *)client_receive_payload(server_socket);
       printf("%s\n", message);
       free(message);
       select_targets(server_socket);
@@ -180,11 +192,11 @@ void player_turn_watcher(int server_socket){
     } else if (msg_code == SKIP_FASE){
       break;
     } else if (msg_code == STANDARD_MESSAGE) {
-      char * message = client_receive_payload(server_socket);
+      char * message = (char *)client_receive_payload(server_socket);
       printf("-> El servidor anuncia: %s\n", message);
       free(message);
     } else if (msg_code != 0){
-      char * message = client_receive_payload(server_socket);
+      char * message = (char *)client_receive_payload(server_socket);
       printf("-> Paquete sin sentido recepcionado con \nmsg_code: %d\n message: %s\n",msg_code, message);
       free(message);
     }

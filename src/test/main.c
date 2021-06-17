@@ -13,7 +13,7 @@ void test_player_spells(){
   player->properties->name = "Jose";
   player->properties->health = 8000;
   show_spells(player);
-  char name[6];
+  char name[7];
   sprintf(name, "flavio");
   char* str1 = name;
   printf("%s\n",str1);
@@ -43,8 +43,8 @@ void test_player_spells(){
   // free(msg2);
   // printf("EspinaVenenosa-------------------------------------");
   monster->current_spell=CasoDeCopia;
-  char * msg3 = cast_monster_spell(monster, players, 1, 4);
-  printf(msg3);
+  char * msg3 = (char *)cast_monster_spell(monster, players, 1, 4);
+  printf("%s", msg3);
   free(msg3);
   // printf("EspinaVenenosa-------------------------------------");
   // monster->current_spell=Reprobatron;

@@ -113,8 +113,8 @@ const char* estocada(Entity *caster, Entity *target){
   return str;
 };
 
-void sangrado(Entity *target){
-  damage(target, target->buff[Sangrado] * 500);
+const char* sangrado(Entity *target){
+  return (char *)damage(target, target->buff[Sangrado] * 500);
 };
 
 const char* corte_cruzado(Entity *caster, Entity *target){

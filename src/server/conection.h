@@ -26,7 +26,7 @@ typedef struct informacion_conectar{
   int server_socket;
   bool conexiones[PLAYER_NUMBER];
   pthread_t escuchadores[PLAYER_NUMBER];
-
+  pthread_t main_connector;
 } Informacion_conectar;
 
 typedef struct informacion_juego{

@@ -16,17 +16,19 @@ int main (int argc, char *argv[]){
   // Se prepara el socket
   int server_socket = prepare_socket(IP, PORT);
   // Se inicializa un loop para recibir todo tipo de paquetes y tomar una acción al respecto
-  while (1){
+
+  bool connected = true;
+  while (connected){
     int msg_code = client_receive_id(server_socket);
 
     if (msg_code == STANDARD_MESSAGE) { // Mensaje recibido para confirmar seteo de clase por jugador no lider
-      char * message = client_receive_payload(server_socket);
+      char * message = (char *)client_receive_payload(server_socket);
       printf("-> El servidor dice: %s\n", message);
       free(message);
 
     }
     else if (msg_code == GET_NAME) { //Recibimos un mensaje inicial del servidor para un jugador cualquiera, se pide el nombre
-      char * message = client_receive_payload(server_socket);
+      char * message = (char *)client_receive_payload(server_socket);
       printf("-> El servidor dice: %s\n", message);
       free(message);
       printf("-> El lider ya fue asignado. \nIngrese nombre:\n");
@@ -35,9 +37,10 @@ int main (int argc, char *argv[]){
       char * response = get_input();
 
       client_send_message(server_socket, option, response);
+      free(response);
     }
     else if (msg_code == GET_NAME_LEADER) { // Mensaje recibido por el jugador lider y se le pide el nombre.
-      char * message = client_receive_payload(server_socket);
+      char * message = (char *)client_receive_payload(server_socket);
       printf("-> El servidor dice: %s\n", message);
       free(message);
 
@@ -47,9 +50,10 @@ int main (int argc, char *argv[]){
       char * response = get_input();
 
       client_send_message(server_socket, option, response);
+      free(response);
     }
     else if (msg_code == SELECT_SPELL) { // Se selecciona clase de cada jugador
-      char * message = client_receive_payload(server_socket);
+      char * message = (char *)client_receive_payload(server_socket);
       printf("-> El servidor dice: %s\n", message);
       free(message);
 
@@ -64,12 +68,14 @@ int main (int argc, char *argv[]){
           break;
         } else {
           printf("-> Seleccione una clase válida.\n");
+          free(response);
         }
       }
       client_send_message(server_socket, option, response);
+      free(response);
     }
     else if (msg_code == READY) { // Solo lo recibe el lider, para partir la partida
-      char * message = client_receive_payload(server_socket);
+      char * message = (char *)client_receive_payload(server_socket);
       printf("-> El servidor dice: %s\n", message);
       free(message);
 
@@ -79,18 +85,33 @@ int main (int argc, char *argv[]){
       char * response = get_input();
 
       client_send_message(server_socket, option, response);
-    } else if (msg_code == ACTIVATE_PROMPT){ // Activa la comunicación del player con el servidor en su turno
-      char * message = client_receive_payload(server_socket);
-      printf("Es tu turno!\n\n");
-      player_turn_watcher(server_socket);
-    } 
 
-    printf("------------------\n");
+      free(response);
+    } else if (msg_code == ACTIVATE_PROMPT){ // Activa la comunicación del player con el servidor en su turno
+      char * message = (char *)client_receive_payload(server_socket);
+      printf("[Server]: %s", message);
+      printf("Es tu turno!\n\n");
+      free(message);
+      player_turn_watcher(server_socket);
+    } else if (msg_code == END_TURN){
+      char * message = (char *)client_receive_payload(server_socket);
+      printf("[Server]: %s", message);
+      free(message);
+      printf("------------------\n");
+    } else if (msg_code == END_CONENCTION){
+      char * message = (char *)client_receive_payload(server_socket);
+      printf("[Server]: %s", message);
+      free(message);
+      char return_message[] = "[Client]: Conexión terminada correctamente\n";
+      client_send_message(server_socket, END_CONENCTION, return_message);
+      printf("%s", return_message);
+      connected = false;
+    }
   }
 
   // Se cierra el socket
   close(server_socket);
-  free(IP);
+  //free(IP);
 
   return 0;
 }
