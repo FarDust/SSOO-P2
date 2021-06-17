@@ -101,7 +101,8 @@ void show_spells(Player *player){
 }
 
 char* cast_spell(Entity *caster, Entity * target, Spell spell){
-  printf("Entity %ld cast %s in Entity %ld\n", caster->uuid, get_spell_name(spell), target->uuid);
+  // printf("Entity %ld cast %s in Entity %ld\n", caster->uuid, get_spell_name(spell), target->uuid);
+  char* str;
   switch (spell)
   {
   case Estocada:
@@ -122,9 +123,12 @@ char* cast_spell(Entity *caster, Entity * target, Spell spell){
     size_t selected_player = rand() % current_player;
     Player * new_target = PLAYERS[selected_player];
     char* dr_msg = destello_regenerador_side_effect(caster, new_target->properties, (size_t)round((double)damage_dealt / 2));
-    char msg[100];
-    sprintf(msg, "%s ha hecho %i de daño a %s\n", dr_msg, damage_dealt, target.name);
-    return msg
+    char msg[200];
+    str = (char *)calloc(200, 1);
+    sprintf(msg, "%s ha hecho %li de daño a %s\n", dr_msg, damage_dealt, target->name);
+    free(dr_msg);
+    write_message(str, msg);
+    return str;
   case DescargaVital:
     return descarga_vital(caster, target);
   case InyeccionSQL:
