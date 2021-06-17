@@ -101,22 +101,19 @@ void show_spells(Player *player){
 
 }
 
-void cast_spell(Entity *caster, Entity * target, Spell spell){
+char* cast_spell(Entity *caster, Entity * target, Spell spell){
   printf("Entity %ld cast %s in Entity %ld\n", caster->uuid, get_spell_name(spell), target->uuid);
   switch (spell)
   {
   case Estocada:
-    estocada(caster, target);
-    break;
+    return estocada(caster, target);
   case CorteCruzado:
-    corte_cruzado(caster, target);
-    break;
+    return corte_cruzado(caster, target);
   case Distraer:
     distraer(caster, target);
     break;
   case Curar:
-    curar(caster, target);
-    break;
+    return curar(caster, target);
   case DestelloRegenerador:;
     size_t damage_dealt = destello_regenerador(caster, target);
 
@@ -125,20 +122,18 @@ void cast_spell(Entity *caster, Entity * target, Spell spell){
 
     size_t selected_player = rand() % current_player;
     Player * new_target = PLAYERS[selected_player];
-    destello_regenerador_side_effect(caster, new_target->properties, (size_t)round((double)damage_dealt / 2));
-    break;
+    char* dr_msg = destello_regenerador_side_effect(caster, new_target->properties, (size_t)round((double)damage_dealt / 2));
+    char msg[100];
+    sprintf(msg, "%s ha hecho %i de daño a %s\n", dr_msg, damage_dealt, target.name);
+    return msg
   case DescargaVital:
-    descarga_vital(caster, target);
-    break;
+    return descarga_vital(caster, target);
   case InyeccionSQL:
-    inyeccion_sql(caster, target);
-    break;
+    return inyeccion_sql(caster, target);
   case AtaqueDDOS:
-    ataque_ddos(caster, target);
-    break;
+    return ataque_ddos(caster, target);
   case FuerzaBruta:
-    fuerza_bruta(caster, target);
-    break;
+    return fuerza_bruta(caster, target);
   
   default:
     break;

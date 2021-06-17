@@ -31,4 +31,4 @@ void kill_player(Player * player);
 void show_spells(Player *player);
 Spell get_spell_slot(PlayerClass spec, Slot slot);
 void select_spell(Player *player, Slot spell);
-void cast_spell(Entity *caster, Entity * target, Spell spell);
+char* cast_spell(Entity *caster, Entity * target, Spell spell);

@@ -5,5 +5,5 @@ typedef struct gameStatus
 {
   size_t round;
   Player **players;
-  Monster **monsters;
+  Monster *monster;
 } GameStatus;

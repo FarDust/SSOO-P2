@@ -17,18 +17,37 @@ void next_round(Informacion_juego * informacion_juego){
     }
   }
 
-  /* MONSTER CODE
-   CODE
-  */
+
+  Monster* monster =  informacion_juego->status->monster;
+  select_monster_spell(monster);
+  cast_monster_spell(monster, player_list, get_player_count(), informacion_juego->status->round);
   
 
   for (size_t entity = 0; entity < get_entities_number(); entity++)
   {
-    if (get_entity(entity)->buff[Sangrado] > 0){
-      sangrado(get_entity(entity));
+    Entity* rentity = get_entity(entity);
+    if (rentity->buff[Sangrado] > 0){
+      sangrado(rentity);
+    }
+    if (rentity->buff[Desmoralized] > 0){
+      rentity->buff[Desmoralized] -= 1;
+    }
+    if (rentity->buff[Desmoralized] > 0){
+      rentity->buff[Desmoralized] -= 1;
+    }
+    if (rentity->buff[JumpBlocked] > 0){
+      rentity->buff[JumpBlocked] -= 1;
+    }
+    if (rentity->buff[Toxic] > 0){
+      rentity->buff[Toxic] -= 1;
+      do_dmg(rentity, 400);
+      //send message toxic
+    }
+    if (rentity->buff[AttackBuff] > 0){
+      rentity->buff[AttackBuff] -= 1;
     }
   }
-  
+
   informacion_juego->status->round += 1;
 }
 
@@ -155,7 +174,10 @@ bool end_condition(GameStatus *status){
     }
   }
   bool end_monsters = false;
-  Monster **monsters = status->monsters;
+  Monster *monster = status->monster;
+  if (monster->properties->health == 0){
+    end_monsters = true;
+  }
   /* TODO: Ask end condition for monsters
   for (size_t monster = 0; monster < get_player_count(); monster++)
   {
