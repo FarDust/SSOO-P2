@@ -110,6 +110,8 @@ int main (int argc, char *argv[]){
       char * message = (char *)client_receive_payload(server_socket);
       printf("%s\n", message);
       free(message);
+    } else if (msg_code == 0){
+      connected = false;
     }
   }
 
