@@ -307,14 +307,14 @@ void play_turn(Player* player, size_t player_index, Informacion_juego * informac
     if (player->properties->buff[Taunted])
     {
       char taunted_message[64];
-      sprintf(taunted_message, "%s está distraido y su objetivo es: %s\n", player->properties->name, target->properties->name);
+      sprintf(taunted_message, "%s está distraido y su objetivo es: %s\n", player->properties->name, target->name);
       for (size_t i; i < get_player_count(); i++)
       {
         server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], EVENT, taunted_message);
       }
     } else {
       char not_taunted_message[64];
-      sprintf(not_taunted_message, "%s eligió como objetivo a: %s\n", player->properties->name, target->properties->name);
+      sprintf(not_taunted_message, "%s eligió como objetivo a: %s\n", player->properties->name, target->name);
       for (size_t i; i < get_player_count(); i++)
       {
          server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], EVENT, not_taunted_message);
