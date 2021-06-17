@@ -1,4 +1,4 @@
 #include "../../entity/entity.h"
 
-char* ruzgar(Entity* monster, Entity *target);
-char* coletazo(Entity* monster, Entity** targets, int targets_n);
+const char* ruzgar(Entity* monster, Entity *target);
+const char* coletazo(Entity* monster, Entity** targets, int targets_n);

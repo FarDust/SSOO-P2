@@ -1,21 +1,33 @@
 #include <math.h>
+#include <stdio.h>
 #include "great_jagruz_spells.h"
 #include "../spell.h"
 
-char* ruzgar(Entity* monster, Entity* target)
+const char* ruzgar(Entity* monster, Entity* target)
 {	
-	char msg[100];
-	sprintf(msg, "Great Jagruz ha usado ruzgar\n%s", do_dmg(target, apply_buffs(monster, 1000)));
-  return msg;
+  char* str;
+  str = (char *)calloc(200, 1);
+	char msg[200];
+  char* response = do_dmg(target, apply_buffs(monster, 1000));
+	sprintf(msg, "Great Jagruz ha usado ruzgar\n%s", response);
+  write_message(str, msg);
+  free(response);
+  return str;
 }
 
-char* coletazo(Entity* monster, Entity** targets, int targets_n)
+const char* coletazo(Entity* monster, Entity** targets, int targets_n)
 {
-  char msg[200];
-  sprintf(msg, "Great Jagruz ha usado ruzgar\n");
+  char* str;
+  str = (char *)calloc(200, 1);
+	char msg[200];
+  char* response;
+  sprintf(msg, "Great Jagruz ha usado coletazo\n");
 	for (int i = 0; i < targets_n; ++i)
 	{
-		sprintf(msg,"%s%s", msg, do_dmg(targets[i], apply_buffs(monster, 500)));
+    response = do_dmg(targets[i], apply_buffs(monster, 500));
+		sprintf(msg,"%s%s", msg, response);
+    free(response);
 	}
-  return msg;
+  write_message(str, msg);
+  return str;
 }

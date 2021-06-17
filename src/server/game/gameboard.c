@@ -48,7 +48,7 @@ void next_round(Informacion_juego * informacion_juego){
       rentity->buff[AttackBuff] -= 1;
     }
   }
-  
+
   char message[64];
   sprintf(message, "Termina ronda %ld\n", informacion_juego->status->round);
   for (size_t i; i<player_count; i++)
@@ -166,7 +166,7 @@ Slot get_action_info(int socket){
     }
   }
   printf("[Server]: spell slot selected: %d\n", slot);
-  
+
   return slot;
 }
 
@@ -231,7 +231,7 @@ void send_player_info(Player* player, int socket){
   entity_buffer[13 + MAX_BUFFS] = strlen(p_name) & 0xFF;
 
   memcpy(&entity_buffer[13 + MAX_BUFFS + 1], p_name, strlen(p_name));
-
+  
   server_send_bytes(socket, GET_INFO, package_len, entity_buffer);
   printf("[Server]: enviado datos del player %s\n", entity->name);
 }
@@ -245,7 +245,7 @@ void play_turn(Player* player, size_t player_index, Informacion_juego * informac
 
     set_client_prompt(player_socket);
 
-    send_targets_info(player, player_index, informacion_juego); // Send available target
+    send_targets_info(player, player_index, informacion_juego); // Send available target 
 
     char message[] = "[Server]: Selecciona un objetivo!\n";
     server_send_message(player_socket, PLAYER_TURN, message);

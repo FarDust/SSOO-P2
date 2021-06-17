@@ -23,4 +23,4 @@ typedef struct monster
 Monster * spawn_monster(MonsterClass spec);
 void kill_monster(Monster* monster);
 void select_monster_spell(Monster* monster);
-char* cast_monster_spell(Monster *monster, Player** players, int n_players, int rounds);
+const char* cast_monster_spell(Monster *monster, Player** players, int n_players, int rounds);

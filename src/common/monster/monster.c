@@ -16,12 +16,15 @@ Monster * spawn_monster(MonsterClass spec){
   {
   case GreatJagRuz:
     monster->properties->health = 10000;
+    monster->properties->name = "Great JagRuz";
     break;
   case Ruzalos:
     monster->properties->health = 20000;
+    monster->properties->name = "Ruzalos";
     break;
   case Ruiz:
     monster->properties->health = 25000;
+    monster->properties->name = "Ruiz";
     break;
 
   default:
@@ -55,7 +58,7 @@ void select_monster_spell(Monster* monster)
       monster->properties->buff[JumpBlocked]=0;
       return;
     }
-    if (r < 40)
+    if (r < 0)
     {
       monster->current_spell = Salto;
     } else {
@@ -84,8 +87,10 @@ void kill_monster(Monster* monster){
   free(monster);
 }
 
-char* cast_monster_spell(Monster *monster, Player** players, int n_players, int rounds)
+const char* cast_monster_spell(Monster *monster, Player** players, int n_players, int rounds)
 {
+  char* msg;
+  msg = (char *)calloc(200, 1);
   time_t t;
   srand((unsigned) time(&t));
   
@@ -114,24 +119,48 @@ char* cast_monster_spell(Monster *monster, Player** players, int n_players, int 
   }
 
   printf("Entity %ld cast %s in Entity %ld\n", monster->properties->uuid, get_spell_name(monster->current_spell), targets[target]->uuid);
+  char* response;
   switch (monster->current_spell)
   {
   case Salto:
-    return salto(monster->properties, targets[target]);
+    response = salto(monster->properties, targets[target]);
+    write_message(msg, response);
+    free(response);
+    break;
   case EspinaVenenosa:
-    return espina_venenosa(monster->properties, targets[target]);
+    response = espina_venenosa(monster->properties, targets[target]);
+    write_message(msg, response);
+    free(response);
+    break;
   case Ruzgar:
-    return ruzgar(monster->properties, targets[target]);
+    response = ruzgar(monster->properties, targets[target]);
+    write_message(msg, response);
+    free(response);
+    break;
   case Coletazo:
-    return coletazo(monster->properties, targets, posible_target_count);
+    response = coletazo(monster->properties, targets, posible_target_count);
+    write_message(msg, response);
+    free(response);
+    break;
   case CasoDeCopia:
-    return caso_de_copia(monster->properties, players[target]->spec, players[rand() % posible_target_count],targets[target]);
+    response = caso_de_copia(monster->properties, players[target]->spec, players[rand() % posible_target_count],targets[target]);
+    write_message(msg, response);
+    free(response);
+    break;
   case Reprobatron:
-    return reprobatron(monster->properties, targets[target]);
+    response = reprobatron(monster->properties, targets[target]);
+    write_message(msg, response);
+    free(response);
+    break;
   case SudoRmRf:
-    return sudoRmRf(monster->properties, rounds, targets, posible_target_count);
+    response = sudoRmRf(monster->properties, rounds, targets, posible_target_count);
+    write_message(msg, response);
+    free(response);
+    break;
 
   default:
     break;
   }
+  return msg;
 }
+
