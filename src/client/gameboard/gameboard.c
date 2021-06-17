@@ -161,6 +161,8 @@ void select_targets(int server_socket){
   Entity *entity = get_entity_by(uuid);
   send_target(server_socket, uuid);
 
+  printf("Seleccionado como objetivo con uuid %ld\n", entity->uuid);
+
   bool waiting_taunt_request = true;
   while (waiting_taunt_request){
     int msg_code = client_receive_id(server_socket);
@@ -171,10 +173,11 @@ void select_targets(int server_socket){
       waiting_taunt_request = false;
     } else  if (msg_code != 0){
       char *message = (char *)client_receive_payload(server_socket);
-      printf("[Client]: Mesaje sin sentido recibido\nmsg_code: %d\nmessage: %s\n", msg_code, message);
+      printf("[Client]: Mensaje sin sentido recibido\nmsg_code: %d\nmessage: %s\n", msg_code, message);
       free(message);
       goto free_temp_game;
     } else {
+      printf("[Client]: Servidor desconectado\n");
       goto free_temp_game;
     }
   }
