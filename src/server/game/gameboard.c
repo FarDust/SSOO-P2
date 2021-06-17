@@ -18,6 +18,9 @@ void next_round(Informacion_juego * informacion_juego){
     }
   }
 
+  if (end_condition(informacion_juego->status) == true){
+    goto skip_monster;
+  }
 
   Monster* monster =  informacion_juego->status->monster;
   select_monster_spell(monster);
@@ -50,6 +53,7 @@ void next_round(Informacion_juego * informacion_juego){
     if (rentity->buff[AttackBuff] > 0){
       rentity->buff[AttackBuff] -= 1;
     }
+    skip_monster:;
   }
 
   char message[64];
@@ -202,6 +206,9 @@ Slot get_action_info(int socket){
     {
       unsigned char * message = (unsigned char *)server_receive_payload(socket);
       slot = (message[0] << 24) | (message[1] << 16) | (message[2] << 8) | (message[3]);
+      if (slot > MAX_SLOTS - 1){
+        slot = flee;
+      }
       not_listo = false;
       free(message);
     } else if (msg_code != 0) {
@@ -328,6 +335,13 @@ void play_turn(Player* player, size_t player_index, Informacion_juego * informac
 
     Slot slot = get_action_info(player_socket);  // Get spell from client
     if (slot == flee){
+      player->properties->health = 0;
+      char message[128];
+      sprintf(message, " %s abandono la partida! 😢\n", player->properties->name);
+      for (size_t i=0; i < number_of_players; i++)
+      {
+        server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], EVENT, message);
+      }
       goto finish_turn;
     }
     
