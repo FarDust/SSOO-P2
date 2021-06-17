@@ -18,4 +18,5 @@ typedef enum serverMessageCode
   GET_INFO,
   END_TURN,
   END_CONENCTION,
+  EVENT,
 } ServerMessageCode;

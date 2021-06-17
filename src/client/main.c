@@ -106,6 +106,10 @@ int main (int argc, char *argv[]){
       client_send_message(server_socket, END_CONENCTION, return_message);
       printf("%s", return_message);
       connected = false;
+    }else if (msg_code == EVENT) {
+      char * message = (char *)client_receive_payload(server_socket);
+      printf("%s\n", message);
+      free(message);
     }
   }
 

@@ -195,6 +195,10 @@ void player_turn_watcher(int server_socket){
       char * message = (char *)client_receive_payload(server_socket);
       printf("-> El servidor anuncia: %s\n", message);
       free(message);
+    } else if (msg_code == EVENT) {
+      char * message = (char *)client_receive_payload(server_socket);
+      printf("%s\n", message);
+      free(message);
     } else if (msg_code != 0){
       char * message = (char *)client_receive_payload(server_socket);
       printf("-> Paquete sin sentido recepcionado con \nmsg_code: %d\n message: %s\n",msg_code, message);
