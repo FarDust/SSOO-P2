@@ -51,8 +51,16 @@ Entity * get_target_info(int server_socket){
       entity->health = (entity_buffer[9] << 24) | (entity_buffer[10] << 16) | (entity_buffer[11] << 8) | (entity_buffer[12]);
       for (size_t buff = 13; buff < 13 + MAX_BUFFS; buff++)
       {
-        entity->buff[buff] = entity_buffer[buff];
+        entity->buff[buff-13] = entity_buffer[buff];
       }
+
+      int name_len = entity_buffer[13 + MAX_BUFFS];
+      char * name = calloc(name_len + 1, sizeof(char));
+      memcpy(name, &entity_buffer[13 + MAX_BUFFS + 1], name_len + 1);
+      entity->name = name;
+    } else {
+      unsigned char *message = client_receive_payload(server_socket);
+      free(message);
     }
   }
   return entity;
@@ -73,12 +81,18 @@ size_t get_player_option(){
   return atoi(get_input());
 }
 
-void send_target(int server_socket, char* uuid){
+void send_target(int server_socket, size_t uuid){
 
   /* TODO: sends uuid to the server */
+  //transformar size_t en char*
 
-  int option = RECEIVE_UUID;
-  client_send_message(server_socket,option,uuid);
+  unsigned char buffer[4];
+  buffer[0] = (uuid >> 24) & 0xFF;
+  buffer[1] = (uuid >> 16) & 0xFF;
+  buffer[2] = (uuid >> 8) & 0xFF;
+  buffer[3] = uuid & 0xFF;
+
+  client_send_bytes(server_socket, RECEIVE_UUID, 4, buffer);
 }
 
 Player * get_own_data(int server_socket){
@@ -93,22 +107,24 @@ Player * get_own_data(int server_socket){
       /* TODO: Obtain player data from server and fill it*/
       /* TODO: use bytes in message to spawn player in client*/
       unsigned char *message = client_receive_payload(server_socket);
-      size_t package_len = strlen(message);
-      unsigned char entity_buffer[package_len];
       player->properties->uuid = (message[0] << 24) | (message[1] << 16) | (message[2] << 8) | (message[3]);
       player->spec = (message[5] << 24) | (message[6] << 16) | (message[7] << 8) | (message[8]);
       player->properties->health = (message[9] << 24) | (message[10] << 16) | (message[11] << 8) | (message[12]);
       
       for (size_t buff = 13; buff < 13 + MAX_BUFFS; buff++)
       {
-        player->properties->buff[buff] = message[buff];
+        player->properties->buff[buff-13] = message[buff];
       }
-      char * name = malloc(package_len - 13 + MAX_BUFFS);
-      memcpy(name, &message[package_len - 13 + MAX_BUFFS], package_len - 13 + MAX_BUFFS);
+      int name_len = message[13 + MAX_BUFFS];
+      char * name = calloc(name_len + 1, sizeof(char));
+      memcpy(name, &message[13 + MAX_BUFFS + 1], name_len + 1);
       player->properties->name = name;
       
-      free(message);
       not_listo = false;
+      set_player_class(player, player->spec);
+      player->properties->health = (message[9] << 24) | (message[10] << 16) | (message[11] << 8) | (message[12]);
+      free(message);
+      show_status(player->properties, true);
     }
   
   
@@ -117,11 +133,17 @@ Player * get_own_data(int server_socket){
 }
 
 void send_spell(int server_socket, Slot slot){
-  /* TODO: sends Slot number to the server */
+  /* Sends Slot number to the server */
   
-  char * message = (char)slot;
+  unsigned char buffer[4];
+  buffer[0] = (slot >> 24) & 0xFF;
+  buffer[1] = (slot >> 16) & 0xFF;
+  buffer[2] = (slot >> 8) & 0xFF;
+  buffer[3] = slot & 0xFF;
+
   int option = RECEIVE_SPELL;
-  client_send_message(server_socket,option,message);
+  client_send_bytes(server_socket,option,4,buffer);
+  printf("[Client] Enviando hechizo %d al servidor\n", slot);
 }
 
 void select_targets(int server_socket){
@@ -130,23 +152,29 @@ void select_targets(int server_socket){
   size_t uuid = get_player_option();
   printf("\n");
   Entity *entity = get_entity_by(uuid);
-  send_target(server_socket,uuid);
+  send_target(server_socket, uuid);
   show_spells(player); // TODO: show flee slot and manage exceptions
+
+  printf("Selecciona un hechizo\n");
   Slot slot = atoi(get_input()); /* TODO: Obtain slot from player */
-  send_spell(server_socket,slot);
+  send_spell(server_socket, slot);
 
   // Cast fake spell in client side to prompt results
   cast_spell(player->properties, entity, get_spell_slot(player->spec, slot));
+  reset_entities();
+  reset_players();
 }
 
 void player_turn_watcher(int server_socket){
-  reset_entities();
   while (true)
   {
     int msg_code = client_receive_id(server_socket);
     if (msg_code == GET_ENTITIES){
       get_targets_info(server_socket);
     } else if (msg_code == PLAYER_TURN) {
+      char * message = client_receive_payload(server_socket);
+      printf("%s\n", message);
+      free(message);
       select_targets(server_socket);
       break;
     } else if (msg_code == SKIP_FASE){
@@ -154,6 +182,10 @@ void player_turn_watcher(int server_socket){
     } else if (msg_code == STANDARD_MESSAGE) {
       char * message = client_receive_payload(server_socket);
       printf("-> El servidor anuncia: %s\n", message);
+      free(message);
+    } else if (msg_code != 0){
+      char * message = client_receive_payload(server_socket);
+      printf("-> Paquete sin sentido recepcionado con \nmsg_code: %d\n message: %s\n",msg_code, message);
       free(message);
     }
   }

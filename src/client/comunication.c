@@ -19,6 +19,9 @@ unsigned char * client_receive_payload(int client_socket){
 }
 
 void client_send_message(int client_socket, int pkg_id, char * message){
+  if (pkg_id == 5){
+    int cat = 0;
+  }
   int payloadSize = strlen(message) + 1; //+1 para considerar el caracter nulo. 
   //Esto solo es válido para strings, Ustedes cuando armen sus paquetes saben exactamente cuantos bytes tiene el payload.
   
@@ -27,6 +30,19 @@ void client_send_message(int client_socket, int pkg_id, char * message){
   msg[0] = pkg_id;
   msg[1] = payloadSize;
   memcpy(&msg[2], message, payloadSize);
+  // Se envía el paquete
+  send(client_socket, msg, 2+payloadSize, 0);
+}
+
+void client_send_bytes(int client_socket, int pkg_id, int len , void * buffer){
+  int payloadSize = len + 1; //+1 para considerar el caracter nulo. 
+  //Esto solo es válido para strings, Ustedes cuando armen sus paquetes saben exactamente cuantos bytes tiene el payload.
+  
+  // Se arma el paquete
+  unsigned char msg[1+1+payloadSize];
+  msg[0] = pkg_id;
+  msg[1] = payloadSize;
+  memcpy(&msg[2], buffer, payloadSize);
   // Se envía el paquete
   send(client_socket, msg, 2+payloadSize, 0);
 }

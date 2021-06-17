@@ -20,6 +20,14 @@ size_t get_player_count(){
   return current_player;
 }
 
+void reset_players(){
+  for (size_t i = 0; i < get_player_count(); i++)
+  {
+    kill_player(PLAYERS[i]);
+  }
+  current_player = 0;
+}
+
 Player * spawn_player(){
   Player *player = malloc(sizeof(Player));
   player->properties = spawn_entity();
@@ -64,7 +72,6 @@ char* get_class_name(PlayerClass spec){
 }
 
 void kill_player(Player * player){
-  free(player->properties);
   free(player);
 }
 
