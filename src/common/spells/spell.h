@@ -5,6 +5,7 @@
 
 #define SPELL_COUNT 9
 #define MAX_BUFFS 16 
+#define MAX_SLOTS 3
 typedef enum
 {
   Estocada,

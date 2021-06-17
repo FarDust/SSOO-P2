@@ -160,6 +160,24 @@ void select_targets(int server_socket){
   printf("\n");
   Entity *entity = get_entity_by(uuid);
   send_target(server_socket, uuid);
+
+  bool waiting_taunt_request = true;
+  while (waiting_taunt_request){
+    int msg_code = client_receive_id(server_socket);
+    if ( msg_code == EVENT){
+      char *message = (char *)client_receive_payload(server_socket);
+      printf("[Server]: %s\n", message);
+      free(message);
+      waiting_taunt_request = false;
+    } else  if (msg_code != 0){
+      char *message = (char *)client_receive_payload(server_socket);
+      printf("[Client]: Mesaje sin sentido recibido\nmsg_code: %d\nmessage: %s\n", msg_code, message);
+      free(message);
+      goto free_temp_game;
+    } else {
+      goto free_temp_game;
+    }
+  }
   show_spells(player); // TODO: show flee slot and manage exceptions
 
   printf("Selecciona un hechizo: ");
@@ -171,6 +189,7 @@ void select_targets(int server_socket){
 
   // Cast fake spell in client side to prompt results
   char * result = cast_spell(player->properties, entity, get_spell_slot(player->spec, slot));
+  free_temp_game:;
   free(result);
   reset_entities();
   reset_players();
