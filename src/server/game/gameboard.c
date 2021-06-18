@@ -254,6 +254,8 @@ void send_player_info(Player* player, int socket){
   /* Sends current player info to the client */
   //uuid vida, nombre spec.
   char * p_name = player->properties->name;
+
+  printf("ENVIANDO NOMBRE JUGADOR %s\n", p_name);
   size_t package_len = 4 + 1 + 4 + 4 + MAX_BUFFS + 1 + strlen(p_name);
   unsigned char entity_buffer[package_len];
   Entity* entity = player->properties;
@@ -279,7 +281,7 @@ void send_player_info(Player* player, int socket){
   {
     entity_buffer[buff] = entity->buff[buff-13] & 0xFF;
   }
-
+  
   entity_buffer[13 + MAX_BUFFS] = strlen(p_name) & 0xFF;
 
   memcpy(&entity_buffer[13 + MAX_BUFFS + 1], p_name, strlen(p_name));
@@ -347,14 +349,21 @@ void play_turn(Player* player, size_t player_index, Informacion_juego * informac
     
     select_spell(player, slot);
     char * result = cast_spell(player->properties, target, player->current_spell);
-    // TODO: send feedback to all players of actions
+    // Send feedback to all players of actions
+    for (size_t i=0; i < number_of_players; i++)
+      {
+        if (i != player_index){
+        server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], EVENT, result);
+        }
+      }
+
     free(result);
     finish_turn:;
     char end_message[64];
     sprintf(end_message, "[Server]: Termino el turno del jugador %s\n", player->properties->name);
     for (size_t i=0; i < get_player_count(); i++)
     {
-      server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], END_TURN, message);
+        server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], END_TURN, message);
     }
   }
 }

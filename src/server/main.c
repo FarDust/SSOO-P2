@@ -35,10 +35,47 @@ int main(int argc, char *argv[]){
     printf("[Server]: Se terminó la ronda %ld\n", informacion_juego->status->round);
   }
 
+
+
+  // Ver ganador
+  bool vivo_player = false;
+  bool vivo_monstruo = false;
+  for (size_t i = 0; i < get_player_count(); i++)
+  {
+    if (informacion_juego->status->players[i]->properties->health > 0){
+      vivo_player = true;
+      break;
+    }
+  }
+  if (informacion_juego->status->monster->properties->health > 0){
+    vivo_monstruo = true;
+  }
+  
+  if (vivo_monstruo)
+  {
+    char * message = (char*)malloc(64 * sizeof(char));
+
+    sprintf(message, "el mosntruo %s gana la partida\n", informacion_juego->status->monster->properties->name);
+    for (size_t i = 0; i < get_player_count(); i++)
+    {
+      server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], END_CONENCTION, message);
+    }
+    //free(message);
+  } else {
+
+    for (size_t i = 0; i < get_player_count(); i++)
+    {
+      server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], END_CONENCTION, "Los jugadores han ganado la partida.");
+    }
+  }
+
+  //Enviar cierre juego
   for (size_t i = 0; i < get_player_count(); i++)
   {
     server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], END_CONENCTION, "cerrando connexion al tablero\n");
   }
+
+  
 
   reset_entities();
   reset_players();

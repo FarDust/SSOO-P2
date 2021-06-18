@@ -108,7 +108,7 @@ int main (int argc, char *argv[]){
       connected = false;
     }else if (msg_code == EVENT) {
       char * message = (char *)client_receive_payload(server_socket);
-      printf("%s\n", message);
+      printf("[EVENT] %s\n", message);
       free(message);
     } else if (msg_code == SELECT_MONSTER){
       char * message = (char *)client_receive_payload(server_socket);

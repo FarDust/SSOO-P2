@@ -134,11 +134,18 @@ void *Conexion(Informacion_juego * informacion_thread)
       free(client_message);
       char * response = "Se seteó su clase en el servidor";
 
-      if (my_attention == 0) // Si es que es lider, le mandamos una respuesta
+      if (my_attention == LEADER) // Si es que es lider, le mandamos una respuesta
       {
         server_send_message(socket, 5, response);
       } else {
         server_send_message(socket, 1, response);
+        //mandar mensaje al lider con nombre y clase de nuevo jugador
+        int leader_socket = informacion_thread->informacion_conexiones->sockets_clients[LEADER];
+        char * message = (char*)malloc(64 * sizeof(char));
+        sprintf(message, "el cliente %d seteó su nombre %s y clase %d", my_attention, player_list[my_attention]->properties->name, player_list[my_attention]->spec);
+        server_send_message(leader_socket, STANDARD_MESSAGE, message);
+        free(message);
+
       }
     }
     else if (msg_code == 4) // Revision de que todos hayan elegido nombre y clase para comenzar

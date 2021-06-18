@@ -1,5 +1,6 @@
 #include "../conection.h"
 
+extern size_t LEADER;
 
 void next_round(Informacion_juego * informacion_juego);
 void set_client_prompt(int socket);

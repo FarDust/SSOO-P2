@@ -32,7 +32,7 @@ Entity * get_target_info(int server_socket){
       */
       server_response = true;
       unsigned char *message = client_receive_payload(server_socket);
-      size_t package_len = 4 + 1 + 4 + 4 + MAX_BUFFS;
+      size_t package_len = 4 + 1 + 4 + 4 + MAX_BUFFS + 64; //Nota: tamaño maximo nombre = 64
       unsigned char entity_buffer[package_len];
       memcpy(entity_buffer, message, package_len);
       free(message);
@@ -48,7 +48,7 @@ Entity * get_target_info(int server_socket){
         size_t spec = (entity_buffer[5] << 24) | (entity_buffer[6] << 16) | (entity_buffer[7] << 8) | (entity_buffer[8]);
         Monster *monster = spawn_monster(spec);
         entity = monster->properties;
-        free(entity->name);
+        
       }
 
       entity->uuid = (entity_buffer[0] << 24) | (entity_buffer[1] << 16) | (entity_buffer[2] << 8) | (entity_buffer[3]);
@@ -59,9 +59,11 @@ Entity * get_target_info(int server_socket){
       }
 
       int name_len = entity_buffer[13 + MAX_BUFFS];
+      
       char * name = calloc(name_len + 1, sizeof(char));
       memcpy(name, &entity_buffer[13 + MAX_BUFFS + 1], name_len + 1);
       entity->name = name;
+
     } else {
       unsigned char *message = client_receive_payload(server_socket);
       free(message);
