@@ -21,4 +21,5 @@ typedef enum serverMessageCode
   EVENT,
   SELECT_MONSTER,
   GAME_MESSAGE,
+  CONTINUE_PLAYING,
 } ServerMessageCode;

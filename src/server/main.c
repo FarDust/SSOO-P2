@@ -28,6 +28,8 @@ int main(int argc, char *argv[]){
       informacion_juego->status->monster = spawn_monster(get_random_monster());
     }
 
+  
+
     printf("Empezando partida!\n");
     while (!end_condition(informacion_juego->status)){ // Mientras end-condition == false
       next_round(informacion_juego);
