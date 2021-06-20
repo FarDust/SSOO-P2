@@ -338,7 +338,7 @@ void play_turn(Player* player, size_t player_index, Informacion_juego * informac
     if (slot == flee){
       player->properties->health = 0;
       char message[128];
-      sprintf(message, " %s abandono la partida! 😢\n", player->properties->name);
+      sprintf(message, " %s abandonó la partida! 😢\n", player->properties->name);
       for (size_t i=0; i < number_of_players; i++)
       {
         server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], EVENT, message);

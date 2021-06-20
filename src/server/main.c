@@ -7,8 +7,8 @@
 
 int main(int argc, char *argv[]){
   // Se define una IP y un puerto
-  char * IP = "0.0.0.0";
-  int PORT = 8080;
+  char * IP = argv[2];
+  int PORT = atoi(argv[4]);
 
   bool new_round = true;
 
@@ -24,16 +24,7 @@ int main(int argc, char *argv[]){
     while ( (informacion_juego != NULL) & !informacion_juego->ready)
     {
       sleep(1);
-      new_round = false;
-      for (size_t i = 0; i < 5; i++)
-      {
-        if (informacion_juego->continue_playing[i]){
-          new_round = true;
-        };
-      }
-      if (!new_round){
-        goto end_server;
-      }
+      
     }
 
     printf("Empezando partida!\n");
@@ -73,6 +64,17 @@ int main(int argc, char *argv[]){
       }
     }
 
+    //poner while true hasta que todos contesten
+    //new_round = false;
+    //  for (size_t i = 0; i < 5; i++)
+    //  {
+    //    if (informacion_juego->continue_playing[i]){
+    //      new_round = true;
+    //    };
+    //  }
+    //  if (!new_round){
+    //    goto end_server;
+    //  }
 
   }
 

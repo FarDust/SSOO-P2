@@ -10,8 +10,8 @@
 
 int main (int argc, char *argv[]){
   //Se obtiene la ip y el puerto donde está escuchando el servidor (la ip y puerto de este cliente da igual)
-  char * IP = "0.0.0.0";
-  int PORT = 8080;
+  char * IP = argv[2];
+  int PORT = atoi(argv[4]);
 
   // Se prepara el socket
   int server_socket = prepare_socket(IP, PORT);

@@ -238,6 +238,10 @@ void *Conexion(Informacion_juego * informacion_thread)
           }
           server_send_message(socket, SELECT_SPEC, response);
         } else {
+
+          
+
+
           player->properties->health = 0;
           informacion_thread->continue_playing[player->index] = false;
           server_send_message(socket, END_CONENCTION, "Cerrando connexion al tablero\n");
