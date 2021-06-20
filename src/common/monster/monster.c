@@ -8,13 +8,8 @@
 Monster* MONSTER;
 
 Monster * spawn_monster(MonsterClass spec){
-  Monster *monster;
-  if (MONSTER == NULL){
-    monster = malloc(sizeof(Monster));
-    monster->properties = spawn_entity();
-  } else {
-    monster = MONSTER;
-  }
+  Monster *monster = malloc(sizeof(Monster));
+  monster->properties = spawn_entity();
   monster->name = spec;
   monster->current_spell = 0;
 
