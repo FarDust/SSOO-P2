@@ -89,6 +89,12 @@ Informacion_juego * prepare_sockets_and_get_clients(char * IP, int port){
   informacion_thread->informacion_conexiones = malloc(sizeof(Informacion_conectar));
   informacion_thread->informacion_conexiones->server_socket = server_socket;
 
+  for (size_t i = 0; i < PLAYER_NUMBER; i++)
+  {
+    informacion_thread->continue_playing[i] = false;
+  }
+  
+
   int ret2 = bind(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr));
   // Se coloca el socket en modo listening
   int ret3 = listen(server_socket, 1);
@@ -109,6 +115,7 @@ void *Conexion(Informacion_juego * informacion_thread)
   Player **player_list = informacion_thread->status->players;
   Player *player = spawn_player();
   Monster *monster;
+  informacion_thread->continue_playing[player->index] = true;
   int socket;
 
   while (1)
@@ -207,15 +214,30 @@ void *Conexion(Informacion_juego * informacion_thread)
           }
         }
         informacion_thread->ready = true;
-        break;
-        
       } else 
       { //Se reenvia pregunta al lider
         char * response = "Algun jugador no esta listo";
         server_send_message(socket, 5, response);
       }
-    }
+    } else if (msg_code == CONTINUE_PLAYING){
+      char * client_message = server_receive_payload(socket);
+      int response = atoi(client_message);
+      free(client_message);
 
+      if (response == 1){
+        char * response = "Se seteó su nombre en el servidor";
+        player->properties->health = player->properties->max_health;
+        for (size_t buff = 0; buff < MAX_BUFFS; buff++)
+        {
+          player->properties->buff[buff] = 0;
+        }
+        server_send_message(socket, SELECT_SPEC, response);
+      } else {
+        player->properties->health = 0;
+        informacion_thread->continue_playing[player->index] = false;
+        server_send_message(socket, END_CONENCTION, "Cerrando connexion al tablero\n");
+      }
+    }
 
 
   }

@@ -6,7 +6,7 @@ typedef enum serverMessageCode
   STANDARD_MESSAGE,
   GET_NAME,
   GET_NAME_LEADER,
-  SELECT_SPELL,
+  SELECT_SPEC,
   READY,
   ACTIVATE_PROMPT,
   GET_ENTITIES,
@@ -21,4 +21,5 @@ typedef enum serverMessageCode
   EVENT,
   SELECT_MONSTER,
   GAME_MESSAGE,
+  CONTINUE_PLAYING,
 } ServerMessageCode;

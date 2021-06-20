@@ -30,10 +30,11 @@ void reset_players(){
 
 Player * spawn_player(){
   Player *player = malloc(sizeof(Player));
+  player->index = current_player;
   player->properties = spawn_entity();
   player->current_spell = 0;
   player->spec = -1;
-  PLAYERS[current_player] = player;
+  PLAYERS[player->index] = player;
   current_player += 1;
   return player;
 }

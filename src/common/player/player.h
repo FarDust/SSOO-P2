@@ -18,6 +18,7 @@ typedef struct player
   Entity *properties;
   PlayerClass spec;
   Spell current_spell;
+  int index;
 } Player;
 
 Player ** get_player_list();
