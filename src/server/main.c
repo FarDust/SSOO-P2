@@ -10,7 +10,6 @@ int main(int argc, char *argv[]){
   char * IP = argv[2]; // 0.0.0.0
   int PORT = atoi(argv[4]); // 8080
 
-  bool continue_playing[5];
   bool new_round = true;
 
   // Se crea el servidor y se obtienen los sockets de los clientes.
@@ -18,17 +17,20 @@ int main(int argc, char *argv[]){
 
   while(new_round){
 
-
     while ( (informacion_juego != NULL) & !informacion_juego->ready)
     {
       sleep(1);
+    }
+    pthread_cancel(informacion_juego->informacion_conexiones->main_connector);
+
+    for (int i = 0; i<get_player_count(); i++)
+    {
+      pthread_cancel(informacion_juego->informacion_conexiones->escuchadores[i]);
     }
   
     if (informacion_juego->status->monster == NULL){
       informacion_juego->status->monster = spawn_monster(get_random_monster());
     }
-
-  
 
     printf("Empezando partida!\n");
     while (!end_condition(informacion_juego->status)){ // Mientras end-condition == false
@@ -73,8 +75,7 @@ int main(int argc, char *argv[]){
     //Enviar cierre juego
     for (size_t i = 0; i < get_player_count(); i++)
     {
-      server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], CONTINUE_PLAYING, "Cerrando connexion al tablero\n");
-      new_round = false;
+      server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], CONTINUE_PLAYING, "Quieres continuar jugando?\n");
     }
 
   }

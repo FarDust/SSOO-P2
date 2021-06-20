@@ -26,8 +26,12 @@ int main (int argc, char *argv[]){
       printf("-> El servidor dice: %s\n", message);
       free(message);
 
-    }
-    else if (msg_code == GET_NAME) { //Recibimos un mensaje inicial del servidor para un jugador cualquiera, se pide el nombre
+    } else if (msg_code == GAME_MESSAGE) { // Mensaje recibido para confirmar seteo de clase por jugador no lider
+      char * message = (char *)client_receive_payload(server_socket);
+      printf("-> El servidor dice: %s\n", message);
+      free(message);
+
+    } else if (msg_code == GET_NAME) { //Recibimos un mensaje inicial del servidor para un jugador cualquiera, se pide el nombre
       char * message = (char *)client_receive_payload(server_socket);
       printf("-> El servidor dice: %s\n", message);
       free(message);
@@ -52,7 +56,7 @@ int main (int argc, char *argv[]){
       client_send_message(server_socket, option, response);
       free(response);
     }
-    else if (msg_code == SELECT_SPELL) { // Se selecciona clase de cada jugador
+    else if (msg_code == SELECT_SPEC) { // Se selecciona clase de cada jugador
       char * message = (char *)client_receive_payload(server_socket);
       printf("-> El servidor dice: %s\n", message);
       free(message);
@@ -116,7 +120,20 @@ int main (int argc, char *argv[]){
       char * response = get_input();
       client_send_message(server_socket, SELECT_MONSTER, response);
       free(message);
-    } else if (msg_code == 0){
+    } else if (msg_code == CONTINUE_PLAYING){
+      char * message = (char *)client_receive_payload(server_socket);
+      printf("[Server]: %s\n", message);
+      free(message);
+
+      printf("otro - no\n");
+      printf("1 - si");
+
+
+      char * response = get_input();
+
+      client_send_message(server_socket, CONTINUE_PLAYING, response);
+      free(response);
+    }else if (msg_code == 0){
       connected = false;
     }
   }
