@@ -236,12 +236,12 @@ size_t get_target_uuid(int socket){
       free(uuid);
     } else if (msg_code != 0) {
       char * message = server_receive_payload(socket);
-      printf("-> Paquete sin sentido recepcionado con \nmsg_code: %d\n message: %s\n",msg_code, message);
+      printf("-> Paquete sin sentido ubicado con \nmsg_code: %d\n message: %s\n",msg_code, message);
       free(message);
     }
   }
   /* Espera a que el cliente responda con un Spell o se desconecte->(Rendirse) */
-  printf("[Server]: target uuid: %ld\n", ret_uuid);
+  printf("[Server]: objetivo con uuid: %ld\n", ret_uuid);
   
   return ret_uuid;
 }
@@ -255,7 +255,6 @@ void send_player_info(Player* player, int socket){
   //uuid vida, nombre spec.
   char * p_name = player->properties->name;
 
-  printf("ENVIANDO NOMBRE JUGADOR %s\n", p_name);
   size_t package_len = 4 + 1 + 4 + 4 + MAX_BUFFS + 1 + strlen(p_name);
   unsigned char entity_buffer[package_len];
   Entity* entity = player->properties;

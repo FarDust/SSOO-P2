@@ -23,6 +23,7 @@ typedef struct monster
 
 
 Monster * spawn_monster(MonsterClass spec);
+Monster * set_monster(Monster *monster, MonsterClass spec);
 void kill_monster(Monster* monster);
 void select_monster_spell(Monster* monster);
 MonsterClass get_random_monster();

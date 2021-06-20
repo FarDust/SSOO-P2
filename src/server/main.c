@@ -24,6 +24,16 @@ int main(int argc, char *argv[]){
     while ( (informacion_juego != NULL) & !informacion_juego->ready)
     {
       sleep(1);
+      new_round = false;
+      for (size_t i = 0; i < 5; i++)
+      {
+        if (informacion_juego->continue_playing[i]){
+          new_round = true;
+        };
+      }
+      if (!new_round){
+        goto end_server;
+      }
     }
 
     printf("Empezando partida!\n");
@@ -32,22 +42,20 @@ int main(int argc, char *argv[]){
       printf("[Server]: Se terminó la ronda %ld\n", informacion_juego->status->round);
     }
 
-
+    informacion_juego->ready = false;
 
     // Ver ganador
-    bool vivo_player = false;
     bool vivo_monstruo = false;
-    for (size_t i = 0; i < get_player_count(); i++)
-    {
-      if (informacion_juego->status->players[i]->properties->health > 0){
-        vivo_player = true;
-        break;
-      }
-    }
     if (informacion_juego->status->monster->properties->health > 0){
       vivo_monstruo = true;
     }
     
+    for (size_t i = 0; i < MAX_BUFFS; i++)
+    {
+      informacion_juego->status->monster->properties->buff[i] = 0;
+    }
+    
+
     if (vivo_monstruo)
     {
       char * message = (char*)malloc(64 * sizeof(char));
@@ -55,24 +63,20 @@ int main(int argc, char *argv[]){
       sprintf(message, "El monstruo %s gana la partida\n", informacion_juego->status->monster->properties->name);
       for (size_t i = 0; i < get_player_count(); i++)
       {
-        server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], END_CONENCTION, message);
+        server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], CONTINUE_PLAYING, message);
       }
-      //free(message);
+      free(message);
     } else {
-
       for (size_t i = 0; i < get_player_count(); i++)
       {
-        server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], END_CONENCTION, "Los jugadores han ganado la partida.");
+        server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], CONTINUE_PLAYING, "Los jugadores han ganado la partida.\n");
       }
     }
 
-    //Enviar cierre juego
-    for (size_t i = 0; i < get_player_count(); i++)
-    {
-      server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], CONTINUE_PLAYING, "Quieres continuar jugando?\n");
-    }
 
   }
+
+  end_server:;
 
   pthread_cancel(informacion_juego->informacion_conexiones->main_connector);
 
