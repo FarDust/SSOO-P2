@@ -10,71 +10,85 @@ int main(int argc, char *argv[]){
   char * IP = "0.0.0.0";
   int PORT = 8080;
 
+  bool continue_playing[5];
+  bool new_round = true;
+
   // Se crea el servidor y se obtienen los sockets de los clientes.
   Informacion_juego * informacion_juego = prepare_sockets_and_get_clients(IP, PORT);
 
-  while ( (informacion_juego != NULL) & !informacion_juego->ready)
-  {
-    sleep(1);
+  while(new_round){
+    
+
+    while ( (informacion_juego != NULL) & !informacion_juego->ready)
+    {
+      sleep(1);
+    }
+
+    if (informacion_juego->status->monster == NULL){
+      informacion_juego->status->monster = spawn_monster(get_random_monster());
+    }
+
+    printf("Empezando partida!\n");
+    while (!end_condition(informacion_juego->status)){ // Mientras end-condition == false
+      next_round(informacion_juego);
+      printf("[Server]: Se terminó la ronda %ld\n", informacion_juego->status->round);
+    }
+
+
+
+    // Ver ganador
+    bool vivo_player = false;
+    bool vivo_monstruo = false;
+    for (size_t i = 0; i < get_player_count(); i++)
+    {
+      if (informacion_juego->status->players[i]->properties->health > 0){
+        vivo_player = true;
+        break;
+      }
+    }
+    if (informacion_juego->status->monster->properties->health > 0){
+      vivo_monstruo = true;
+    }
+    
+    if (vivo_monstruo)
+    {
+      char * message = (char*)malloc(64 * sizeof(char));
+
+      sprintf(message, "El monstruo %s gana la partida\n", informacion_juego->status->monster->properties->name);
+      for (size_t i = 0; i < get_player_count(); i++)
+      {
+        server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], END_CONENCTION, message);
+      }
+      //free(message);
+    } else {
+
+      for (size_t i = 0; i < get_player_count(); i++)
+      {
+        server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], END_CONENCTION, "Los jugadores han ganado la partida.");
+      }
+    }
+
+    //Enviar cierre juego
+    for (size_t i = 0; i < get_player_count(); i++)
+    {
+      server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], CONTINUE_PLAYING, "Cerrando connexion al tablero\n");
+      new_round = false;
+    }
+
   }
 
   pthread_cancel(informacion_juego->informacion_conexiones->main_connector);
 
-  if (informacion_juego->status->monster == NULL){
-    informacion_juego->status->monster = spawn_monster(get_random_monster());
-  }
-  
   for (int i = 0; i<get_player_count(); i++)
   {
     pthread_cancel(informacion_juego->informacion_conexiones->escuchadores[i]);
   }
 
-  printf("Empezando partida!\n");
-  while (!end_condition(informacion_juego->status)){ // Mientras end-condition == false
-    next_round(informacion_juego);
-    printf("[Server]: Se terminó la ronda %ld\n", informacion_juego->status->round);
-  }
-
-
-
-  // Ver ganador
-  bool vivo_player = false;
-  bool vivo_monstruo = false;
-  for (size_t i = 0; i < get_player_count(); i++)
-  {
-    if (informacion_juego->status->players[i]->properties->health > 0){
-      vivo_player = true;
-      break;
-    }
-  }
-  if (informacion_juego->status->monster->properties->health > 0){
-    vivo_monstruo = true;
-  }
-  
-  if (vivo_monstruo)
-  {
-    char * message = (char*)malloc(64 * sizeof(char));
-
-    sprintf(message, "el mosntruo %s gana la partida\n", informacion_juego->status->monster->properties->name);
-    for (size_t i = 0; i < get_player_count(); i++)
-    {
-      server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], END_CONENCTION, message);
-    }
-    //free(message);
-  } else {
-
-    for (size_t i = 0; i < get_player_count(); i++)
-    {
-      server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], END_CONENCTION, "Los jugadores han ganado la partida.");
-    }
-  }
-
   //Enviar cierre juego
   for (size_t i = 0; i < get_player_count(); i++)
   {
-    server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], END_CONENCTION, "cerrando connexion al tablero\n");
+    server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], END_CONENCTION, "Cerrando connexion al tablero\n");
   }
-
   
 
   reset_entities();

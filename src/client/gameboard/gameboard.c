@@ -227,6 +227,10 @@ void player_turn_watcher(int server_socket){
       char * message = (char *)client_receive_payload(server_socket);
       printf("-> El servidor anuncia: %s\n", message);
       free(message);
+    } else if (msg_code == GAME_MESSAGE) {
+      char * message = (char *)client_receive_payload(server_socket);
+      printf("-> El servidor anuncia: %s\n", message);
+      free(message);
     } else if (msg_code == EVENT) {
       char * message = (char *)client_receive_payload(server_socket);
       printf("%s\n", message);

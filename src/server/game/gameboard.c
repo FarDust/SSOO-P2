@@ -27,7 +27,7 @@ void next_round(Informacion_juego * informacion_juego){
   char * server_msg = (char *)cast_monster_spell(monster, player_list, get_player_count(), informacion_juego->status->round);
   for (size_t i = 0; i < get_player_count(); i++)
   {
-    server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], STANDARD_MESSAGE, server_msg);
+    server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], GAME_MESSAGE, server_msg);
   }
   free(server_msg);
 
@@ -60,7 +60,7 @@ void next_round(Informacion_juego * informacion_juego){
   sprintf(message, "Termina ronda %ld\n", informacion_juego->status->round);
   for (size_t i = 0; i<player_count; i++)
   {
-    server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], STANDARD_MESSAGE, message);
+    server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], GAME_MESSAGE, message);
   }
   informacion_juego->status->round += 1;
   
@@ -72,7 +72,7 @@ void broadcast_player_turn(Player* player, Informacion_conectar *conexiones){
   {
     char message[64];
     sprintf(message, "Turno del jugador %s\n", player->properties->name);
-    server_send_message(conexiones->sockets_clients[i], STANDARD_MESSAGE, message);
+    server_send_message(conexiones->sockets_clients[i], GAME_MESSAGE, message);
     printf("[Server]: anunciando el turno del player %s al socket %d\n", player->properties->name, conexiones->sockets_clients[i]);
   }
 }

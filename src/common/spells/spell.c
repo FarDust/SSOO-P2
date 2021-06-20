@@ -68,11 +68,11 @@ int apply_buffs(Entity *caster, int amount){
   if (caster->buff[AttackBuff] > 0)
   {
     new_amount = 2 * new_amount;
-    printf("Entity %ld Damage buff x2\n", caster->uuid);
+    printf("%s mejora de daño x2\n", caster->name);
   } else if (caster->buff[Desmoralized])
   {
     new_amount = 0.5 * new_amount;
-    printf("Entity %ld Damage buff x0.5\n", caster->uuid);
+    printf("%s mejora de daño x0.5\n", caster->name);
   }
   return new_amount;
 }
@@ -84,7 +84,7 @@ const char* damage(Entity *target, int amount){
   target->health = (size_t)fmax(fmin(target->health, target->max_health), 0);
   //printf("Entity %ld hit by %d hp\n", target->uuid, amount);
   char msg[100];
-  sprintf(msg, "%s hit by %d hp\n", target->name, amount);
+  sprintf(msg, "%s recibió un golpe por %d hp\n", target->name, amount);
   write_message(str, msg);
   return str;
 }
@@ -95,7 +95,7 @@ const char* heal(Entity *target, int amount){
   target->health = (size_t)fmin(fmax(0, target->health + amount), target->max_health);
   //printf("Entity %ld heal by %d hp\n", target->uuid, amount);
   char msg[100];
-  sprintf(msg, "%s healed by %d hp\n", target->name, amount);
+  sprintf(msg, "%s restauro %d de hp\n", target->name, amount);
   write_message(str, msg);
   return str;
 }
