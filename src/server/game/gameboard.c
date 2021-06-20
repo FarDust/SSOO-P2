@@ -30,6 +30,10 @@ void next_round(Informacion_juego * informacion_juego){
     server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], GAME_MESSAGE, server_msg);
   }
   free(server_msg);
+  if (monster->properties->buff[Taunted] == true)
+  {
+    monster->properties->buff[Taunted] = false;
+  }
 
   for (size_t entity = 0; entity < get_entities_number(); entity++)
   {
@@ -366,6 +370,10 @@ void play_turn(Player* player, size_t player_index, Informacion_juego * informac
         server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], END_TURN, message);
     }
   }
+  if (player->properties->buff[Taunted] == true)
+  {
+    player->properties->buff[Taunted] = false;
+  }
 }
 
 bool end_condition(GameStatus *status){
@@ -379,7 +387,7 @@ bool end_condition(GameStatus *status){
   }
   bool end_monsters = false;
   Monster *monster = status->monster;
-  if (monster->properties->health == 0){
+  if (monster->properties->health < 1){
     end_monsters = true;
   }
   return end_monsters | end_players;
