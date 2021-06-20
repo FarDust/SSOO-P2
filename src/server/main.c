@@ -21,12 +21,6 @@ int main(int argc, char *argv[]){
     {
       sleep(1);
     }
-    pthread_cancel(informacion_juego->informacion_conexiones->main_connector);
-
-    for (int i = 0; i<get_player_count(); i++)
-    {
-      pthread_cancel(informacion_juego->informacion_conexiones->escuchadores[i]);
-    }
   
     if (informacion_juego->status->monster == NULL){
       informacion_juego->status->monster = spawn_monster(get_random_monster());
