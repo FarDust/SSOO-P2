@@ -7,8 +7,8 @@
 
 int main(int argc, char *argv[]){
   // Se define una IP y un puerto
-  char * IP = "0.0.0.0";
-  int PORT = 8080;
+  char * IP = argv[2]; // 0.0.0.0
+  int PORT = atoi(argv[4]); // 8080
 
   // Se crea el servidor y se obtienen los sockets de los clientes.
   Informacion_juego * informacion_juego = prepare_sockets_and_get_clients(IP, PORT);
