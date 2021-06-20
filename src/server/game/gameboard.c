@@ -291,7 +291,7 @@ void send_player_info(Player* player, int socket){
 }
 
 void play_turn(Player* player, size_t player_index, Informacion_juego * informacion_juego){
-  if (player->properties->health > 0){
+  if (player->properties->health > 0 && !end_condition(informacion_juego->status)){
     int player_socket = informacion_juego->informacion_conexiones->sockets_clients[player_index];
 
     broadcast_player_turn(player, informacion_juego->informacion_conexiones);
