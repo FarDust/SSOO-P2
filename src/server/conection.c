@@ -206,9 +206,9 @@ void *Conexion(Informacion_juego * informacion_thread)
             if (msg_code==SELECT_MONSTER){
               char* client_monster_message = server_receive_payload(socket);
               if (informacion_thread->status->monster == NULL){
-                monster = spawn_monster(atoi(client_message));
+                monster = spawn_monster(atoi(client_monster_message));
               }else {
-                monster = set_monster(informacion_thread->status->monster, atoi(client_message));
+                monster = set_monster(informacion_thread->status->monster, atoi(client_monster_message));
               }
               informacion_thread->status->monster = monster;
               seguir = false;
