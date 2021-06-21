@@ -247,10 +247,12 @@ void *Conexion(Informacion_juego * informacion_thread)
           
           informacion_thread->informacion_conexiones->conexiones[my_attention] = false;
 
+          int count;
           // se setea un nuevo LEADER
           if (my_attention == LEADER)
           {
           while(1){
+            count = 0;
             time_t t;
             srand((unsigned) time(&t));
             size_t NEW_LEADER= rand() % 6; //generar numero random entre lower y upper
@@ -259,6 +261,15 @@ void *Conexion(Informacion_juego * informacion_thread)
             {
               LEADER = NEW_LEADER;
               printf("[Server] Nuevo lider %ld", LEADER);
+              break;
+            }
+            for (int i = 0; i < PLAYER_NUMBER; i++)
+            {
+              if(informacion_thread->informacion_conexiones->conexiones[i] == false){
+                count += 1;
+              }
+            }
+            if (count == PLAYER_NUMBER){
               break;
             }
             

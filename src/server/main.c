@@ -105,13 +105,15 @@ int main(int argc, char *argv[]){
       }
   }
 
-
+  int result;
+  
 
   pthread_cancel(informacion_juego->informacion_conexiones->main_connector);
-
+  
   for (int i = 0; i<get_player_count(); i++)
   {
     pthread_cancel(informacion_juego->informacion_conexiones->escuchadores[i]);
+    pthread_join(informacion_juego->informacion_conexiones->escuchadores[i], &result);
   }
 
   //Enviar cierre juego

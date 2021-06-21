@@ -120,6 +120,7 @@ int main (int argc, char *argv[]){
       char * response = get_input();
       client_send_message(server_socket, SELECT_MONSTER, response);
       free(message);
+      free(response);
     } else if (msg_code == CONTINUE_PLAYING){
       char * message = (char *)client_receive_payload(server_socket);
       printf("[Server]: %s\n", message);

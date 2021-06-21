@@ -54,7 +54,7 @@ Entity * get_target_info(int server_socket){
         size_t spec = (entity_buffer[5] << 24) | (entity_buffer[6] << 16) | (entity_buffer[7] << 8) | (entity_buffer[8]);
         Monster *monster = spawn_monster(spec);
         entity = monster->properties;
-        
+        free(monster);
       }
 
       entity->uuid = (entity_buffer[0] << 24) | (entity_buffer[1] << 16) | (entity_buffer[2] << 8) | (entity_buffer[3]);
