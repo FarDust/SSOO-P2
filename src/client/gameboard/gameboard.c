@@ -30,12 +30,18 @@ Entity * get_target_info(int server_socket){
       vida actual [4 bytes] 9 10 11 12
       buffs [MAX_BUFFS bytes] 13>
       */
+
       server_response = true;
+      
       unsigned char *message = client_receive_payload(server_socket);
-      size_t package_len = 4 + 1 + 4 + 4 + MAX_BUFFS + 64; //Nota: tamaño maximo nombre = 64
+      size_t package_len = 4 + 1 + 4 + 4 + MAX_BUFFS + 1; //Nota: tamaño maximo nombre = 64
+      int name_len = message[13 + MAX_BUFFS];
+      package_len += name_len;
       unsigned char entity_buffer[package_len];
       memcpy(entity_buffer, message, package_len);
       free(message);
+
+      
 
       if (entity_buffer[4] == 0x01){
         Player *player = spawn_player();
@@ -58,10 +64,11 @@ Entity * get_target_info(int server_socket){
         entity->buff[buff-13] = entity_buffer[buff];
       }
 
-      int name_len = entity_buffer[13 + MAX_BUFFS];
+      
       
       char * name = calloc(name_len + 1, sizeof(char));
       memcpy(name, &entity_buffer[13 + MAX_BUFFS + 1], name_len + 1);
+      name[name_len] = 0x00;
       entity->name = name;
 
     } else {
