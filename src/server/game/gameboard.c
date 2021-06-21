@@ -154,9 +154,7 @@ void send_targets_info(Player *player, size_t player_index, Informacion_juego * 
       }
 
       entity_buffer[13 + MAX_BUFFS] = strlen(p_name) & 0xFF;
-
       memcpy(&entity_buffer[13 + MAX_BUFFS + 1], p_name, strlen(p_name));
-
       server_send_bytes(player_socket, AVAILABLE_TARGET, package_len + strlen(p_name), entity_buffer);
       printf("[Server]: enviado objetivo %ld\n", entity->uuid);
     }

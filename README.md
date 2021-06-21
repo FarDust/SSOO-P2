@@ -82,18 +82,16 @@ Los códigos de mensaje recibidos son captados por el thread del cliente. Éste 
 
 - msg_code = CONTINUE_PLAYING: Este mensaje pregunta si se quiere seguir jugando en otra partida.
 
-## descripcion de los ´ paquetes utilizados en la comunicacion entre cliente y servidor
+## descripcion de los paquetes utilizados en la comunicacion entre cliente y servidor
 ### Paquete n°1
 - pd_threads
-### Paquete n°2
-- 
 
 ## principales decisiones de diseño para construir el programa
 - Para las conexiones iniciales de los clientes se crea un thread por cliente así el servidor los puede escuchar simultáneamente. Una vez que todos los jugadores ingresan su nombre y clase y el juego comienza, se dejan todos los threads en standby excepto uno y se juega sólo en ese thread. Si se inicia otra partida se vuelven a usar los threads de cada cliente para volver a ingresar las clases.
 
 
 
-## s principales funciones del programa supuestos adicionales ocuparon,
+## Principales funciones del programa supuestos adicionales ocuparon,
 ### Principales funciones de servidor
 - Conexion: Esta se encarga de la comuncación inicial con los clientes. En esta funcion se le pregunta el nombre y la clase a cada jugador y los guarda en la estructura información_thread. También le pide al lider que elija un monstruo y le pregunta si el juego esta listo para empezar.
 
