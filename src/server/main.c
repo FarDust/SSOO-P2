@@ -27,6 +27,8 @@ int main(int argc, char *argv[]){
       
     }
 
+
+
     printf("Empezando partida!\n");
     while (!end_condition(informacion_juego->status)){ // Mientras end-condition == false
       next_round(informacion_juego);
@@ -54,31 +56,56 @@ int main(int argc, char *argv[]){
       sprintf(message, "El monstruo %s gana la partida\n", informacion_juego->status->monster->properties->name);
       for (size_t i = 0; i < get_player_count(); i++)
       {
+        if(informacion_juego->informacion_conexiones->conexiones[i]){
         server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], CONTINUE_PLAYING, message);
+        }
       }
       free(message);
     } else {
       for (size_t i = 0; i < get_player_count(); i++)
       {
+        if(informacion_juego->informacion_conexiones->conexiones[i]){
         server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], CONTINUE_PLAYING, "Los jugadores han ganado la partida.\n");
+        }
       }
     }
 
     //poner while true hasta que todos contesten
-    //new_round = false;
-    //  for (size_t i = 0; i < 5; i++)
-    //  {
-    //    if (informacion_juego->continue_playing[i]){
-    //      new_round = true;
-    //    };
-    //  }
-    //  if (!new_round){
-    //    goto end_server;
-    //  }
 
+    new_round = false;
+    bool no_respondieron = true;
+    while (no_respondieron)
+    {
+      no_listo:;
+      no_respondieron = false;
+      for (size_t i = 0; i < PLAYER_NUMBER; i++)
+      {
+        if(informacion_juego->informacion_conexiones->conexiones[i]){
+          if (informacion_juego->respondieron[i] == false)
+          {
+            goto no_listo;
+          }
+          
+        }
+
+      }
+    }
+
+    for (size_t i = 0; i < PLAYER_NUMBER; i++)
+      {
+        if(informacion_juego->informacion_conexiones->conexiones[i]){
+          if (informacion_juego->continue_playing[i])
+          {
+            new_round = true;
+            break;
+          }
+          
+        }
+        
+      }
   }
 
-  end_server:;
+
 
   pthread_cancel(informacion_juego->informacion_conexiones->main_connector);
 

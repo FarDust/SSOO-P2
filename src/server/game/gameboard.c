@@ -27,7 +27,9 @@ void next_round(Informacion_juego * informacion_juego){
   char * server_msg = (char *)cast_monster_spell(monster, player_list, get_player_count(), informacion_juego->status->round);
   for (size_t i = 0; i < get_player_count(); i++)
   {
+    if(informacion_juego->informacion_conexiones->conexiones[i]){
     server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], GAME_MESSAGE, server_msg);
+    }
   }
   free(server_msg);
 
@@ -60,7 +62,9 @@ void next_round(Informacion_juego * informacion_juego){
   sprintf(message, "Termina ronda %ld\n", informacion_juego->status->round);
   for (size_t i = 0; i<player_count; i++)
   {
+    if(informacion_juego->informacion_conexiones->conexiones[i]){
     server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], GAME_MESSAGE, message);
+    }
   }
   informacion_juego->status->round += 1;
   
@@ -72,8 +76,10 @@ void broadcast_player_turn(Player* player, Informacion_conectar *conexiones){
   {
     char message[64];
     sprintf(message, "Turno del jugador %s\n", player->properties->name);
+    if(conexiones->conexiones[i]){
     server_send_message(conexiones->sockets_clients[i], GAME_MESSAGE, message);
     printf("[Server]: anunciando el turno del player %s al socket %d\n", player->properties->name, conexiones->sockets_clients[i]);
+    }
   }
 }
 
@@ -319,7 +325,9 @@ void play_turn(Player* player, size_t player_index, Informacion_juego * informac
       sprintf(taunted_message, "%s está distraido y su objetivo es: %s\n", player->properties->name, target->name);
       for (size_t i=0; i < number_of_players; i++)
       {
+        if(informacion_juego->informacion_conexiones->conexiones[i]){
         server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], EVENT, taunted_message);
+        }
       }
       printf("[Server]: %s", taunted_message);
     } else {
@@ -327,7 +335,9 @@ void play_turn(Player* player, size_t player_index, Informacion_juego * informac
       sprintf(not_taunted_message, " %s eligió como objetivo a: %s\n", player->properties->name, target->name);
       for (size_t i=0; i < number_of_players; i++)
       {
-        server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], EVENT, not_taunted_message);
+        if(informacion_juego->informacion_conexiones->conexiones[i]){
+          server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], EVENT, not_taunted_message);
+        }
       }
       printf("Cantidad de jugadores: %ld\n", get_player_count());
       printf("[Server]: %s", not_taunted_message);
@@ -341,7 +351,9 @@ void play_turn(Player* player, size_t player_index, Informacion_juego * informac
       sprintf(message, " %s abandonó la partida! 😢\n", player->properties->name);
       for (size_t i=0; i < number_of_players; i++)
       {
+        if(informacion_juego->informacion_conexiones->conexiones[i]){
         server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], EVENT, message);
+        }
       }
       goto finish_turn;
     }
@@ -352,7 +364,9 @@ void play_turn(Player* player, size_t player_index, Informacion_juego * informac
     for (size_t i=0; i < number_of_players; i++)
       {
         if (i != player_index){
+          if(informacion_juego->informacion_conexiones->conexiones[i]){
         server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], EVENT, result);
+          }
         }
       }
 
@@ -362,7 +376,9 @@ void play_turn(Player* player, size_t player_index, Informacion_juego * informac
     sprintf(end_message, "[Server]: Termino el turno del jugador %s\n", player->properties->name);
     for (size_t i=0; i < get_player_count(); i++)
     {
+      if(informacion_juego->informacion_conexiones->conexiones[i]){
         server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], END_TURN, message);
+      }
     }
   }
 }

@@ -46,7 +46,8 @@ Luego de que se inicia el juego, se le pide al lider que elija un monstruo.
 
 Los códigos de mensaje recibidos son captados por el thread del cliente. Éste ejecuta acciones distintas dependiendo del mensaje que recibió. La lista de mensajes se define en src/common/communication.h en forma de *enum*, para preparar distintos mensajes.
 
-- msg_code = NON_DEFINED:
+- msg_code = NON_DEFINED: Este mensaje se activa cuando el msg_code es incorrecto o undefined.
+
 - msg_code = STANDARD_MESSAGE: Envío de un mensaje genérico desde el servidor al cliente. Se imprime en pantalla del cliente el mensaje.
 
 - msg_code = GET_NAME: Mensaje inicial del servidor, se le pide al cliente el nombre y luego de introducirlo, se le responde al servidor.
@@ -88,7 +89,7 @@ Los códigos de mensaje recibidos son captados por el thread del cliente. Éste 
 - 
 
 ## principales decisiones de diseño para construir el programa
-
+- Para las conexiones iniciales de los clientes se crea un thread por cliente así el servidor los puede escuchar simultáneamente. Una vez que todos los jugadores ingresan su nombre y clase y el juego comienza, se dejan todos los threads en standby excepto uno y se juega sólo en ese thread. Si se inicia otra partida se vuelven a usar los threads de cada cliente para volver a ingresar las clases.
 
 
 
@@ -100,12 +101,16 @@ Los códigos de mensaje recibidos son captados por el thread del cliente. Éste 
 
 - prepare_sockets_and_get_clients: Esta función crea y activa el socket del servidor poniendolo en modo listenting. Se crea un thread con los threads de los jugadores que están conectados y se escuchan todos simultáneamente.
 
-- next_round: En esta función se juega una ronda del juego. 
+- play_turn: Esta función simula un turno de un jugador.
 
-- play_turn:
+- next_round: En esta función se juega una ronda del juego. Llama a a función play_turn() para cada jugador.
+
+
 
 
 ### Principales funciones del cliente
-- main: El main controla la secuancialidad
+- main: El main controla lo que pasa cuando el cliente recibe cada msg_code. Dependiendo del mgs_code recibido el main le dice al cliente que es lo que tiene que hacer y le envia al servidor un mensaje si corresponde.
 
-- get_target_info:
+- get_target_info: Esta función crea una entidad con un objetivo que esta disponible pra ser atacado. Si el msg_code recibido es AVAILABLE_TARGET, el objetivo esta disponible y se retorna una entidad.A
+
+- get_targets_info: Esta función busca todos los objetivos que estan disponibles para ser atacados y crea una entidad para cada uno con la función get_target_info()

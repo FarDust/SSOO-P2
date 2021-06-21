@@ -40,6 +40,7 @@ void *Th_conectador(Informacion_juego * info_juego)
   char * welcome = "Bienvenido Cliente !!";
   
   for (int i = 0; i<5;i++){ //Seteamos ninguno conectado
+    info_juego->respondieron[i] = false;
     info_juego->informacion_conexiones->conexiones[i] = false;
   }
   printf("Esperando clientes\n");
@@ -158,6 +159,11 @@ void *Conexion(Informacion_juego * informacion_thread)
       }
       else if (msg_code == 4) // Revision de que todos hayan elegido nombre y clase para comenzar
       {
+        for (int i = 0; i < PLAYER_NUMBER; i++)
+        {
+          informacion_thread->respondieron[i] = false;
+        }
+        
         char * client_message = server_receive_payload(socket);
         printf("-> El lider quiere partir la partida, se revisa si todos han elegido nombre\n");
         bool listo = true;
@@ -228,7 +234,7 @@ void *Conexion(Informacion_juego * informacion_thread)
         char * client_message = server_receive_payload(socket);
         int response = atoi(client_message);
         free(client_message);
-
+        informacion_thread->respondieron[my_attention] = true;
         if (response == 1){
           char * response = "Se seteó su nombre en el servidor";
           player->properties->health = player->properties->max_health;
@@ -238,15 +244,35 @@ void *Conexion(Informacion_juego * informacion_thread)
           }
           server_send_message(socket, SELECT_SPEC, response);
         } else {
-
           
+          informacion_thread->informacion_conexiones->conexiones[my_attention] = false;
 
+          // se setea un nuevo LEADER
+          if (my_attention == LEADER)
+          {
+          while(1){
+            time_t t;
+            srand((unsigned) time(&t));
+            size_t NEW_LEADER= rand() % 6; //generar numero random entre lower y upper
+
+            if (informacion_thread->informacion_conexiones->conexiones[NEW_LEADER]) // si está conectado aun
+            {
+              LEADER = NEW_LEADER;
+              printf("[Server] Nuevo lider %ld", LEADER);
+              break;
+            }
+            
+            
+          }
+
+          }
 
           player->properties->health = 0;
           informacion_thread->continue_playing[player->index] = false;
           server_send_message(socket, END_CONENCTION, "Cerrando connexion al tablero\n");
           break;
         }
+        
       } else if (msg_code != 0){
         char * client_message = server_receive_payload(socket);
         printf("-> Paquete sin sentido encontrado con \nmsg_code: %d\n message: %s\n",msg_code, client_message);
