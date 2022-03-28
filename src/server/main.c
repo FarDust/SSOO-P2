@@ -7,8 +7,8 @@
 
 int main(int argc, char *argv[]){
   // Se define una IP y un puerto
-  char * IP = argv[2];
-  int PORT = atoi(argv[4]);
+  char * IP = argv[2]; // 0.0.0.0
+  int PORT = atoi(argv[4]); // 8080
 
   bool new_round = true;
 
@@ -16,15 +16,15 @@ int main(int argc, char *argv[]){
   Informacion_juego * informacion_juego = prepare_sockets_and_get_clients(IP, PORT);
 
   while(new_round){
-    
-    if (informacion_juego->status->monster == NULL){
-      informacion_juego->status->monster = spawn_monster(get_random_monster());
-    }
 
     while ( (informacion_juego != NULL) & !informacion_juego->ready)
     {
       sleep(1);
       
+    }
+  
+    if (informacion_juego->status->monster == NULL){
+      informacion_juego->status->monster = spawn_monster(get_random_monster());
     }
 
 
@@ -121,8 +121,8 @@ int main(int argc, char *argv[]){
   {
     server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], END_CONENCTION, "Cerrando connexion al tablero\n");
   }
-  
 
+  
   reset_entities();
   reset_players();
   reset_monster();
