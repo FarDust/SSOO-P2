@@ -7,35 +7,72 @@
 Player *PLAYERS[PLAYER_NUMBER];
 size_t current_player = 0;
 
-Player * spawn_player(PlayerClass spec){
+char *CLASS_NAME[] = {
+    "Cazador 🦌",
+    "Medico 💊",
+    "Hacker 💻"};
+
+Player ** get_player_list(){
+  return PLAYERS;
+}
+
+size_t get_player_count(){
+  return current_player;
+}
+
+void reset_players(){
+  for (size_t i = 0; i < get_player_count(); i++)
+  {
+    kill_player(PLAYERS[i]);
+  }
+  current_player = 0;
+}
+
+Player * spawn_player(){
   Player *player = malloc(sizeof(Player));
+  player->index = current_player;
   player->properties = spawn_entity();
-  player->spec = spec;
   player->current_spell = 0;
-  
-  switch (player->spec)
+  player->spec = -1;
+  PLAYERS[player->index] = player;
+  current_player += 1;
+  return player;
+}
+
+size_t get_spec_health(PlayerClass spec){
+  size_t health = 0;
+  switch (spec)
   {
   case Hunter:
-    player->properties->health = 5000;
+    health = 5000;
     break;
   case Medic:
-    player->properties->health = 3000;
+    health = 3000;
     break;
   case Hacker:
-    player->properties->health = 2500;
+    health = 2500;
     break;
 
   default:
     break;
   }
+  return health;
+}
+
+void set_player_class(Player * player, PlayerClass spec){
+  player->spec = spec;
+  player->properties->health = get_spec_health(spec);
   player->properties->max_health = player->properties->health;
-  PLAYERS[current_player] = player;
-  current_player += 1;
-  return player;
+}
+
+char* get_class_name(PlayerClass spec){
+  if (spec == -1){
+    return "NULL";
+  }
+  return CLASS_NAME[spec];
 }
 
 void kill_player(Player * player){
-  free(player->properties);
   free(player);
 }
 
@@ -71,22 +108,19 @@ void show_spells(Player *player){
 
 }
 
-void cast_spell(Entity *caster, Entity * target, Spell spell){
-  printf("Entity %ld cast %s in Entity %ld\n", caster->uuid, get_spell_name(spell), target->uuid);
+char* cast_spell(Entity *caster, Entity * target, Spell spell){
+  printf("%s cast %s in %s\n", caster->name, get_spell_name(spell), target->name);
+  char* str;
   switch (spell)
   {
   case Estocada:
-    estocada(caster, target);
-    break;
+    return (char *)estocada(caster, target);
   case CorteCruzado:
-    corte_cruzado(caster, target);
-    break;
+    return (char *)corte_cruzado(caster, target);
   case Distraer:
-    distraer(caster, target);
-    break;
+    return (char *)distraer(caster, target);
   case Curar:
-    curar(caster, target);
-    break;
+    return (char *)curar(caster, target);
   case DestelloRegenerador:;
     size_t damage_dealt = destello_regenerador(caster, target);
 
@@ -95,22 +129,24 @@ void cast_spell(Entity *caster, Entity * target, Spell spell){
 
     size_t selected_player = rand() % current_player;
     Player * new_target = PLAYERS[selected_player];
-    destello_regenerador_side_effect(caster, new_target->properties, (size_t)round((double)damage_dealt / 2));
-    break;
+    char* dr_msg = (char *)destello_regenerador_side_effect(caster, new_target->properties, (size_t)round((double)damage_dealt / 2));
+    char msg[200];
+    str = (char *)calloc(200, 1);
+    sprintf(msg, "%s ha hecho %li de daño a %s\n", dr_msg, damage_dealt, target->name);
+    free(dr_msg);
+    write_message(str, msg);
+    return str;
   case DescargaVital:
-    descarga_vital(caster, target);
-    break;
+    return (char *)descarga_vital(caster, target);
   case InyeccionSQL:
-    inyeccion_sql(caster, target);
-    break;
+    return (char *)inyeccion_sql(caster, target);
   case AtaqueDDOS:
-    ataque_ddos(caster, target);
-    break;
+    return (char *)ataque_ddos(caster, target);
   case FuerzaBruta:
-    fuerza_bruta(caster, target);
-    break;
+    return (char *)fuerza_bruta(caster, target);
   
   default:
-    break;
+    return "\n";
   }
+  return "\n";
 }

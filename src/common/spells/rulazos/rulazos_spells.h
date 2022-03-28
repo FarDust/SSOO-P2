@@ -1,4 +1,4 @@
 #include "../../entity/entity.h"
 
-void salto(Entity* monster, Entity* target);
-void espina_venenosa(Entity* target);
+const char* salto(Entity* monster, Entity* target);
+const char* espina_venenosa(Entity* monster, Entity* target);

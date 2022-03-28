@@ -1,17 +1,35 @@
 #include <math.h>
+#include <stdio.h>
 #include "rulazos_spells.h"
 #include "../spell.h"
 
-void salto(Entity* monster, Entity* target)
+const char* salto(Entity* monster, Entity* target)
 {
-	do_dmg(target, 1500);
-	monster->buff[JumpBlocked] = 1;
+  char* str;
+  str = (char *)calloc(200, 1);
+	char msg[200];
+  char* response = (char *)do_dmg(target, apply_buffs(monster, 1500));
+	sprintf(msg,"Rulazos usó salto\n%s", response);
+	monster->buff[JumpBlocked] = 2;
+	write_message(str, msg);
+  free(response);
+  return str;
 };
-void espina_venenosa(Entity* target)
+const char* espina_venenosa(Entity* monster, Entity* target)
 {
+	char* str;
+  str = (char *)calloc(200, 1);
+  char msg[1024];
+  char* response;
+	sprintf(msg, "Rulazos usó espina venenosa\n");
 	if (target->buff[Toxic] > 0){
-		do_dmg(target, 500);
+    response = (char *)do_dmg(target,  apply_buffs(monster, 500));
+		sprintf(msg, "%s%s ya estaba envenedado\n%s", msg, target->name, response);
+    free(response);
 	} else {
 		target->buff[Toxic] = 3;
+		sprintf(msg, "%s%s ha sido envenedado\n", msg, target->name);
 	}
+	write_message(str, msg);
+  return str;
 };

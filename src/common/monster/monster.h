@@ -5,6 +5,8 @@
 #include "../spells/ruiz/ruiz_spells.h"
 #include "../spells/great_jagruz/great_jagruz_spells.h"
 
+#define MAX_MONSTER_CLASSES 3
+
 typedef enum
 {
 	GreatJagRuz,
@@ -23,4 +25,6 @@ typedef struct monster
 Monster * spawn_monster(MonsterClass spec);
 void kill_monster(Monster* monster);
 void select_monster_spell(Monster* monster);
-void cast_monster_spell(Monster *monster, Player** players, int n_players, int rounds);
+MonsterClass get_random_monster();
+void reset_monster();
+const char* cast_monster_spell(Monster *monster, Player** players, int n_players, int rounds);

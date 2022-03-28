@@ -5,18 +5,23 @@
 #include <stdio.h>
 #include <time.h>
 
-int do_dmg(Entity* target, int dmg)
+const char* do_dmg(Entity* target, int dmg)
 {
-    int dmg_done;
+  int dmg_done;
+  char* str;
+  str = (char *)calloc(200, 1);
+  char msg[100];
 	if (target->health < dmg)
 	{
     dmg_done = target->health;
 		target->health = 0;
-    return dmg_done;
+    sprintf(msg, "%s hit by %d hp\n", target->name, dmg_done);
 	} else {
 		target->health -= dmg;
-    return dmg;
+    sprintf(msg, "%s hit by %d hp\n", target->name, dmg);
 	}
+  write_message(str, msg);
+  return str;
 }
 char * get_spell_name(Spell spell){
   char *SPELL_NAME[] = {
@@ -63,48 +68,101 @@ int apply_buffs(Entity *caster, int amount){
   if (caster->buff[AttackBuff] > 0)
   {
     new_amount = 2 * new_amount;
-    printf("Entity %ld - Damage buff x2\n", caster->uuid);
+    printf("%s mejora de daño x2\n", caster->name);
+  } else if (caster->buff[Desmoralized])
+  {
+    new_amount = 0.5 * new_amount;
+    printf("%s mejora de daño x0.5\n", caster->name);
   }
   return new_amount;
 }
 
-void damage(Entity *target, int amount){
+const char* damage(Entity *target, int amount){
+  char* str;
+  str = (char *)calloc(200, 1);
   target->health = target->health - (size_t)fmin(target->health, amount);
   target->health = (size_t)fmax(fmin(target->health, target->max_health), 0);
-  printf("Entity %ld - hit by %d hp\n", target->uuid, amount);
+  //printf("Entity %ld hit by %d hp\n", target->uuid, amount);
+  char msg[100];
+  sprintf(msg, "%s recibió un golpe por %d hp\n", target->name, amount);
+  write_message(str, msg);
+  return str;
 }
 
-void heal(Entity *target, int amount){
+const char* heal(Entity *target, int amount){
+  char* str;
+  str = (char *)calloc(200, 1);
   target->health = (size_t)fmin(fmax(0, target->health + amount), target->max_health);
-  printf("Entity %ld - heal by %d hp\n", target->uuid, amount);
+  //printf("Entity %ld heal by %d hp\n", target->uuid, amount);
+  char msg[100];
+  sprintf(msg, "%s restauro %d de hp\n", target->name, amount);
+  write_message(str, msg);
+  return str;
 }
 
-void estocada(Entity *caster, Entity *target){
-  damage(target, apply_buffs(caster, 1000));
+const char* estocada(Entity *caster, Entity *target){
+  char* str;
+  str = (char *)calloc(200, 1);
   target->buff[Sangrado] += 1;
   target->buff[Sangrado] = (unsigned int)fmin(target->buff[Sangrado], 3);
+  char msg[200];
+  char* response = (char *)damage(target, apply_buffs(caster, 1000));
+  sprintf(msg, "%s ha usado estocada\n%s", caster->name, response);
+  write_message(str, msg);
+  free(response);
+  return str;
 };
 
-void corte_cruzado(Entity *caster, Entity *target){
-  damage(target,  apply_buffs(caster, 3000));
+const char* sangrado(Entity *target){
+  return (char *)damage(target, target->buff[Sangrado] * 500);
+};
+
+const char* corte_cruzado(Entity *caster, Entity *target){
+  char* str;
+  str = (char *)calloc(200, 1);
+  char msg[100];
+  char* response = (char *)damage(target, apply_buffs(caster, 3000));
+  sprintf(msg, "%s ha usado corte cruzado\n%s", caster->name, response);
+  write_message(str, msg);
+  free(response);
+  return str;
 }
 
-void distraer(Entity *caster, Entity *target){
+const char* distraer(Entity *caster, Entity *target){
   /*set TauntedBy to uuid of caster and Taunted to true*/
+  char* str;
+  str = (char *)calloc(200, 1);
   target->buff[TauntedBy] = caster->uuid;
   target->buff[Taunted] = true;
+  char msg[100];
+  sprintf(msg, "%s ha usado distraer sobre %s\n", caster->name, target->name);
+  write_message(str, msg);
+  return str;
 }
 
-void curar(Entity *caster, Entity *target){
+const char* curar(Entity *caster, Entity *target){
   size_t RECOVERY_AMOUNT = 2000;
+  if(caster->buff[Desmoralized]){
+    RECOVERY_AMOUNT = 1000;
+  }
+  char msg[100];
+  char* str;
+  str = (char *)calloc(200, 1);
+  char* response;
   if (caster->buff[CasoDeCopiaStatus] == true)
   {
-    heal(caster, RECOVERY_AMOUNT);
+    response = (char *)heal(caster, RECOVERY_AMOUNT);
+    sprintf(msg, "%s ha usado curar\n%s", caster->name, response);
+    free(response);
   }
   else
   {
-    heal(target, RECOVERY_AMOUNT);
+    response = (char *)heal(target, RECOVERY_AMOUNT);
+    sprintf(msg, "%s ha usado curar\n%s", caster->name, response);
+    free(response);
   }
+  write_message(str, msg);
+  return str;
 }
 
 size_t destello_regenerador(Entity *caster, Entity *target){
@@ -116,24 +174,43 @@ size_t destello_regenerador(Entity *caster, Entity *target){
   return light_damage;
 }
 
-void destello_regenerador_side_effect(Entity *caster, Entity *target, size_t amount){
+const char* destello_regenerador_side_effect(Entity *caster, Entity *target, size_t amount){
+  char* str;
+  str = (char *)calloc(200, 1);
+  char msg[100];
+  char* response;
   if (caster->buff[CasoDeCopiaStatus] == true)
   {
-    heal(caster, amount);
+    response = (char *)heal(caster, amount);
+    sprintf(msg, "%s ha usado destello regenerador\n%s", caster->name, response);
+    free(response);
   }
   else
   {
-    heal(target, amount);
+    response = (char *)heal(target, amount);
+    sprintf(msg, "%s ha usado destello regenerador\n%s", caster->name, response);
+    free(response);
   }
+  write_message(str, msg);
+  return str;
 }
 
-void descarga_vital(Entity *caster, Entity *target){
+const char* descarga_vital(Entity *caster, Entity *target){
+  char* str;
+  str = (char *)calloc(200, 1);
   size_t damage_dealt = 2 * (caster->max_health - caster->health);
-  damage(target,  apply_buffs(caster, damage_dealt));
+  char msg[100];
+  char* response = (char *)damage(target,  apply_buffs(caster, damage_dealt));
+  sprintf(msg, "%s ha usado descarga vital\n%s", caster->name, response);
+  write_message(str, msg);
+  free(response);
+  return str;
 }
 
-void inyeccion_sql(Entity *caster, Entity *target){
+const char* inyeccion_sql(Entity *caster, Entity *target){
   /* set turns of attack buff */
+  char* str;
+  str = (char *)calloc(200, 1);
   Entity *real_target;
   if (caster->buff[CasoDeCopiaStatus] == true)
   {
@@ -144,16 +221,48 @@ void inyeccion_sql(Entity *caster, Entity *target){
     real_target = target;
   }
   real_target->buff[AttackBuff] = 2;
+  char msg[100];
+  sprintf(msg, "%s ha usado inyeccion_sql sobre %s\n", caster->name, real_target->name);
+  write_message(str, msg);
+  return str;
 }
 
-void ataque_ddos(Entity *caster, Entity *target){
-  damage(target,  apply_buffs(caster, 1500));
+const char* ataque_ddos(Entity *caster, Entity *target){
+  char* str;
+  str = (char *)calloc(200, 1);
+  char msg[100];
+  char* response =  (char *)damage(target, apply_buffs(caster, 1500));
+  sprintf(msg, "%s ha usado ataque DDos\n%s", caster->name, response);
+  write_message(str, msg);
+  free(response);
+  return str;
 }
 
-void fuerza_bruta(Entity *caster, Entity *target){
+const char* fuerza_bruta(Entity *caster, Entity *target){
+  char* str;
+  str = (char *)calloc(200, 1);
   target->buff[BruteForceCharge] += 1;
+  char msg[100];
+  char* response;
   if (target->buff[BruteForceCharge] == 3){
     target->buff[BruteForceCharge] = 0;
-    damage(target,  apply_buffs(caster, 10000));
+    response = (char *)damage(target,  apply_buffs(caster, 10000));
+    sprintf(msg, "%s ha usado fuerza bruta\n%s", caster->name, response);
+  }else{
+    sprintf(msg, "%s ha usado fuerza bruta\n", caster->name);
+  }
+  write_message(str, msg);
+  return str;
+}
+
+void write_message(char* puntero, const char* arr)
+{
+  for (size_t i = 0; i < 200; i++)
+  {
+    if (arr[i+1]=='\0')
+    {
+      break;
+    }
+    puntero[i] = arr[i];
   }
 }

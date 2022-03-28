@@ -1,4 +1,9 @@
 #include "./monster.h"
+#include <time.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 Monster* MONSTER;
 
@@ -7,22 +12,28 @@ Monster * spawn_monster(MonsterClass spec){
   monster->properties = spawn_entity();
   monster->name = spec;
   monster->current_spell = 0;
-  
+
+  char *name = calloc(64, sizeof(char));
+
   switch (monster->name)
   {
   case GreatJagRuz:
+    strcpy(name, "Great JagRuz");
     monster->properties->health = 10000;
     break;
   case Ruzalos:
+    strcpy(name, "Ruzalos");
     monster->properties->health = 20000;
     break;
   case Ruiz:
+    strcpy(name, "Ruiz");
     monster->properties->health = 25000;
     break;
 
   default:
     break;
   }
+  monster->properties->name = name;
   monster->properties->max_health = monster->properties->health;
   MONSTER = monster;
   return monster;
@@ -30,7 +41,8 @@ Monster * spawn_monster(MonsterClass spec){
 
 void select_monster_spell(Monster* monster)
 {
-  srand(1);
+  time_t t;
+  srand((unsigned) time(&t));
   int r = rand()%100;
   switch (monster->name)
   {
@@ -50,7 +62,7 @@ void select_monster_spell(Monster* monster)
       monster->properties->buff[JumpBlocked]=0;
       return;
     }
-    if (r < 40)
+    if (r < 0)
     {
       monster->current_spell = Salto;
     } else {
@@ -75,45 +87,95 @@ void select_monster_spell(Monster* monster)
 }
 
 void kill_monster(Monster* monster){
-  free(monster->properties);
+  kill_entity(monster->properties);
   free(monster);
 }
 
-void cast_monster_spell(Monster *monster, Player** players, int n_players, int rounds)
+const char* cast_monster_spell(Monster *monster, Player** players, int n_players, int rounds)
 {
-  srand(1);
-  Entity* targets[n_players];
+  char* msg;
+  msg = (char *)calloc(200, 1);
+  time_t t;
+  srand((unsigned) time(&t));
+  
+  int posible_target_count = 0;
   for (size_t i = 0; i < n_players; i++)
   {
-    targets[i] = players[i]->properties;
+    if (players[i]->properties->health > 0){
+      posible_target_count += 1;
+    }
   }
-  int target = rand() % n_players;
+  Entity* targets[posible_target_count];
+  posible_target_count = 0;
+  for (size_t i = 0; i < n_players; i++)
+  {
+    if (players[i]->properties->health > 0)
+    {  
+      targets[posible_target_count] = players[i]->properties;
+      posible_target_count += 1;
+    }
+  }
+  int target;
+  if (monster->properties->buff[Taunted]){
+    target = monster->properties->buff[TauntedBy];
+  }else{
+    target = rand() % posible_target_count;
+  }
 
+  printf("Entity %ld cast %s in Entity %ld\n", monster->properties->uuid, get_spell_name(monster->current_spell), targets[target]->uuid);
+  char* response;
   switch (monster->current_spell)
   {
   case Salto:
-    salto(monster->properties, targets[target]);
+    response = (char *)salto(monster->properties, targets[target]);
+    write_message(msg, response);
+    free(response);
     break;
   case EspinaVenenosa:
-    espina_venenosa(targets[target]);
+    response = (char *)espina_venenosa(monster->properties, targets[target]);
+    write_message(msg, response);
+    free(response);
     break;
   case Ruzgar:
-    ruzgar(targets[target]);
+    response = (char *)ruzgar(monster->properties, targets[target]);
+    write_message(msg, response);
+    free(response);
     break;
   case Coletazo:
-    coletazo(targets, n_players);
+    response = (char *)coletazo(monster->properties, targets, posible_target_count);
+    write_message(msg, response);
+    free(response);
     break;
   case CasoDeCopia:
-    caso_de_copia(monster->properties, players[target]->spec, targets[target]);
+    response = (char *)caso_de_copia(monster->properties, players[target]->spec, players[rand() % posible_target_count],targets[target]);
+    write_message(msg, response);
+    free(response);
     break;
   case Reprobatron:
-    reprobatron(targets[target]);
+    response = (char *)reprobatron(monster->properties, targets[target]);
+    write_message(msg, response);
+    free(response);
     break;
   case SudoRmRf:
-    sudoRmRf(rounds, targets, n_players);
+    response = (char *)sudoRmRf(monster->properties, rounds, targets, posible_target_count);
+    write_message(msg, response);
+    free(response);
     break;
 
   default:
     break;
   }
+  return msg;
+}
+
+MonsterClass get_random_monster(){
+
+  time_t t;
+  srand((unsigned) time(&t));
+
+  return rand() % MAX_MONSTER_CLASSES;
+}
+
+void reset_monster(){
+  free(MONSTER);
 }
