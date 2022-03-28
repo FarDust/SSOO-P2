@@ -7,13 +7,17 @@
 
 Monster* MONSTER;
 
-Monster * spawn_monster(MonsterClass spec){
-  Monster *monster = malloc(sizeof(Monster));
-  monster->properties = spawn_entity();
+Monster * set_monster(Monster * monster, MonsterClass spec){
   monster->name = spec;
   monster->current_spell = 0;
 
-  char *name = calloc(64, sizeof(char));
+  char *name;
+
+  if (monster->properties->name == NULL){
+    name = calloc(64, sizeof(char));
+  } else {
+    name = monster->properties->name;
+  }
 
   switch (monster->name)
   {
@@ -36,6 +40,13 @@ Monster * spawn_monster(MonsterClass spec){
   monster->properties->name = name;
   monster->properties->max_health = monster->properties->health;
   MONSTER = monster;
+  return monster;
+}
+
+Monster * spawn_monster(MonsterClass spec){
+  Monster *monster = malloc(sizeof(Monster));
+  monster->properties = spawn_entity();
+  set_monster(monster, spec);
   return monster;
 }
 

@@ -36,6 +36,7 @@ typedef struct informacion_juego{
   int attention;
   bool continue_playing[PLAYER_NUMBER];
   bool ready;
+  bool respondieron[PLAYER_NUMBER];
 } Informacion_juego;
 
 

@@ -120,15 +120,16 @@ int main (int argc, char *argv[]){
       char * response = get_input();
       client_send_message(server_socket, SELECT_MONSTER, response);
       free(message);
+      free(response);
     } else if (msg_code == CONTINUE_PLAYING){
       char * message = (char *)client_receive_payload(server_socket);
       printf("[Server]: %s\n", message);
       free(message);
 
       printf("otro - no\n");
-      printf("1 - si");
+      printf("1 - si\n");
 
-
+      printf("Quieres continuar jugando?\n");
       char * response = get_input();
 
       client_send_message(server_socket, CONTINUE_PLAYING, response);

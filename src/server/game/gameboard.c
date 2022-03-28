@@ -27,7 +27,9 @@ void next_round(Informacion_juego * informacion_juego){
   char * server_msg = (char *)cast_monster_spell(monster, player_list, get_player_count(), informacion_juego->status->round);
   for (size_t i = 0; i < get_player_count(); i++)
   {
+    if(informacion_juego->informacion_conexiones->conexiones[i]){
     server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], GAME_MESSAGE, server_msg);
+    }
   }
   free(server_msg);
   if (monster->properties->buff[Taunted] == true)
@@ -64,7 +66,9 @@ void next_round(Informacion_juego * informacion_juego){
   sprintf(message, "Termina ronda %ld\n", informacion_juego->status->round);
   for (size_t i = 0; i<player_count; i++)
   {
+    if(informacion_juego->informacion_conexiones->conexiones[i]){
     server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], GAME_MESSAGE, message);
+    }
   }
   informacion_juego->status->round += 1;
   
@@ -76,8 +80,10 @@ void broadcast_player_turn(Player* player, Informacion_conectar *conexiones){
   {
     char message[64];
     sprintf(message, "Turno del jugador %s\n", player->properties->name);
+    if(conexiones->conexiones[i]){
     server_send_message(conexiones->sockets_clients[i], GAME_MESSAGE, message);
     printf("[Server]: anunciando el turno del player %s al socket %d\n", player->properties->name, conexiones->sockets_clients[i]);
+    }
   }
 }
 
@@ -152,9 +158,7 @@ void send_targets_info(Player *player, size_t player_index, Informacion_juego * 
       }
 
       entity_buffer[13 + MAX_BUFFS] = strlen(p_name) & 0xFF;
-
       memcpy(&entity_buffer[13 + MAX_BUFFS + 1], p_name, strlen(p_name));
-
       server_send_bytes(player_socket, AVAILABLE_TARGET, package_len + strlen(p_name), entity_buffer);
       printf("[Server]: enviado objetivo %ld\n", entity->uuid);
     }
@@ -240,12 +244,12 @@ size_t get_target_uuid(int socket){
       free(uuid);
     } else if (msg_code != 0) {
       char * message = server_receive_payload(socket);
-      printf("-> Paquete sin sentido recepcionado con \nmsg_code: %d\n message: %s\n",msg_code, message);
+      printf("-> Paquete sin sentido ubicado con \nmsg_code: %d\n message: %s\n",msg_code, message);
       free(message);
     }
   }
   /* Espera a que el cliente responda con un Spell o se desconecte->(Rendirse) */
-  printf("[Server]: target uuid: %ld\n", ret_uuid);
+  printf("[Server]: objetivo con uuid: %ld\n", ret_uuid);
   
   return ret_uuid;
 }
@@ -259,7 +263,6 @@ void send_player_info(Player* player, int socket){
   //uuid vida, nombre spec.
   char * p_name = player->properties->name;
 
-  printf("ENVIANDO NOMBRE JUGADOR %s\n", p_name);
   size_t package_len = 4 + 1 + 4 + 4 + MAX_BUFFS + 1 + strlen(p_name);
   unsigned char entity_buffer[package_len];
   Entity* entity = player->properties;
@@ -324,7 +327,9 @@ void play_turn(Player* player, size_t player_index, Informacion_juego * informac
       sprintf(taunted_message, "%s está distraido y su objetivo es: %s\n", player->properties->name, target->name);
       for (size_t i=0; i < number_of_players; i++)
       {
+        if(informacion_juego->informacion_conexiones->conexiones[i]){
         server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], EVENT, taunted_message);
+        }
       }
       printf("[Server]: %s", taunted_message);
     } else {
@@ -332,7 +337,9 @@ void play_turn(Player* player, size_t player_index, Informacion_juego * informac
       sprintf(not_taunted_message, " %s eligió como objetivo a: %s\n", player->properties->name, target->name);
       for (size_t i=0; i < number_of_players; i++)
       {
-        server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], EVENT, not_taunted_message);
+        if(informacion_juego->informacion_conexiones->conexiones[i]){
+          server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], EVENT, not_taunted_message);
+        }
       }
       printf("Cantidad de jugadores: %ld\n", get_player_count());
       printf("[Server]: %s", not_taunted_message);
@@ -343,10 +350,12 @@ void play_turn(Player* player, size_t player_index, Informacion_juego * informac
     if (slot == flee){
       player->properties->health = 0;
       char message[128];
-      sprintf(message, " %s abandono la partida! 😢\n", player->properties->name);
+      sprintf(message, " %s abandonó la partida! 😢\n", player->properties->name);
       for (size_t i=0; i < number_of_players; i++)
       {
+        if(informacion_juego->informacion_conexiones->conexiones[i]){
         server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], EVENT, message);
+        }
       }
       goto finish_turn;
     }
@@ -357,7 +366,9 @@ void play_turn(Player* player, size_t player_index, Informacion_juego * informac
     for (size_t i=0; i < number_of_players; i++)
       {
         if (i != player_index){
+          if(informacion_juego->informacion_conexiones->conexiones[i]){
         server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], EVENT, result);
+          }
         }
       }
 
@@ -367,7 +378,9 @@ void play_turn(Player* player, size_t player_index, Informacion_juego * informac
     sprintf(end_message, "[Server]: Termino el turno del jugador %s\n", player->properties->name);
     for (size_t i=0; i < get_player_count(); i++)
     {
+      if(informacion_juego->informacion_conexiones->conexiones[i]){
         server_send_message(informacion_juego->informacion_conexiones->sockets_clients[i], END_TURN, message);
+      }
     }
   }
   if (player->properties->buff[Taunted] == true)
